@@ -3,5 +3,5 @@ export const getEnvVariable = (name: string) : string => {
   if (!value) {
     throw new Error(`Environment varibale (${name}) not set.`)
   }
-  return value
+  return value.replace(/\\n/g, '\n')
 }

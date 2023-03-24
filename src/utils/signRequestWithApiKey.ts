@@ -35,7 +35,6 @@ export const signRequestWithApiKey = async (
     challenge: response.challenge,
     origin: appOrigin
   })
-  //console.log(apiKeyPrivateKey);
   const signedClientData = crypto.sign(
     undefined,
     Buffer.from(clientData),
