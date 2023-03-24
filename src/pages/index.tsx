@@ -18,7 +18,7 @@ export default function Home() {
 
   useEffect(() => {
     setAccessKey(localStorage.getItem('access_key') || '')
-    if (accessKey==null) router.push('/login')
+    if (!accessKey) router.push('/login')
   }, [accessKey, router])
 
   const handleCreateWallet = async () => {

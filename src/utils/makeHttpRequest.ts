@@ -41,6 +41,7 @@ export const makeHttpRequest = async<TResponse> (
         })
 
         if (!res.statusCode || res.statusCode !== 200) {
+          console.log(`${path}\n${authToken}\n${payload}\n${appId}`);
           reject({
             statusCode: res.statusCode,
             message: res.statusMessage,

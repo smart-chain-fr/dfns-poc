@@ -29,7 +29,7 @@ export const signedRequest = async <T>(
       userActionServerKind: 'Api',
     }),
   }
-  const challengeResponse = await fetch(endpoint, options)
+  const challengeResponse = await fetch("/api/sign/init", options)
   const challenge : CreateUserLoginChallengeResponse = await challengeResponse.json()
   const credential = (await navigator.credentials.get({
     mediation: 'required',
