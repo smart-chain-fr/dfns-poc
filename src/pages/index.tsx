@@ -14,11 +14,17 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   let item;
   const router = useRouter()
-  const [accessKey, setAccessKey] = useState('')
+  const [accessKey, setAccessKey] = useState('-')
 
   useEffect(() => {
-    setAccessKey(localStorage.getItem('access_key') || '')
-    if (!accessKey) router.push('/login')
+    const interval = setInterval(async () => {
+      const key = localStorage.getItem('access_key')
+      setAccessKey(key || '')
+      if (!key) {
+        router.push('/login')
+      }
+    }, 10000)
+    return () => clearInterval(interval)
   }, [accessKey, router])
 
   const handleCreateWallet = async () => {
