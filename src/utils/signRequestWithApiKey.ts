@@ -35,7 +35,7 @@ export const signRequestWithApiKey = async (
     challenge: response.challenge,
     origin: appOrigin
   })
-  console.log(apiKeyPrivateKey);
+  //console.log(apiKeyPrivateKey);
   const signedClientData = crypto.sign(
     undefined,
     Buffer.from(clientData),
@@ -53,7 +53,7 @@ export const signRequestWithApiKey = async (
       }
     }
   }
-  console.log(JSON.stringify(signaturePayload));
+  //console.log(JSON.stringify(signaturePayload));
 
   const signatureResponse = await makeHttpRequest<CreateUserActionSignatureResponse>(
     'POST',

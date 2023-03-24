@@ -125,7 +125,7 @@ export const registerUser = async (input: CreateUserRegistrationInput, registrat
     path:  '/auth/registration',
     payload: JSON.stringify(input),
   }
-  console.log("Reg Token:", registrationToken);
+  //console.log("Reg Token:", registrationToken);
   await makeHttpRequest<{}>(
     request.method,
     request.path,
