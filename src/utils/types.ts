@@ -272,3 +272,13 @@ export type KeyClientData = {
   origin: string
   crossOrigin?: boolean
 }
+
+export type CreateAssetAccountInput = {
+  assetSymbol: string
+  groupSize?: number
+  groupThreshold?: number
+  publicKey?: string
+  externalId?: string
+  tags?: string[]
+  name?: string
+}

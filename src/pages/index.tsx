@@ -2,21 +2,38 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router"
 import logo from '../../public/logo.png'
 import Button from '@mui/material/Button';
+import { signedRequest } from '@/utils/signedRequest';
+import { AssetAccount } from '@/utils/types';
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-  let accessKey, item;
+  let item;
   const router = useRouter()
+  const [accessKey, setAccessKey] = useState('')
 
   useEffect(() => {
-    accessKey = localStorage.getItem('access_key')
+    setAccessKey(localStorage.getItem('access_key') || '')
     if (accessKey==null) router.push('/login')
-  }, [])
+  }, [accessKey, router])
+
+  const handleCreateWallet = async () => {
+    signedRequest<AssetAccount>(
+      'POST',
+      '/api/accounts',
+      'POST',
+      '/assets/asset-accounts',
+      JSON.stringify({ assetSymbol: 'ETH' }
+    )).then((assetAccount: AssetAccount) => {
+      console.log('Asset account created: '  + JSON.stringify(assetAccount))
+    }).catch((error) => {
+      console.log(error)
+    })
+  }
 
   return (
     <>
@@ -37,9 +54,7 @@ export default function Home() {
         // placeholder="blur" // Optional blur-up while loading
       />
       Your user has logged in and is ready to create a wallet...
-      <Button variant="contained" onClick={() => {
-        alert('clicked');
-      }}>Create Wallet</Button>
+      <Button variant="contained" onClick={handleCreateWallet}>Create Wallet</Button>
 
       </main>
     </>

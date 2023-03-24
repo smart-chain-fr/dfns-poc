@@ -133,3 +133,63 @@ export const registerUser = async (input: CreateUserRegistrationInput, registrat
     registrationToken
   )
 }
+
+export const getRequest = async <InputType, OutputType>(
+  api: string,
+  input: InputType,
+  authToken?: string,
+  userActionSignature?: string
+): Promise<OutputType> => {
+  return await makeHttpRequest<OutputType>(
+    'GET',
+    api,
+    input ? JSON.stringify(input) : '',
+    authToken || '',
+    userActionSignature
+  )
+}
+
+export const putRequest = async <InputType, OutputType>(
+  api: string,
+  input: InputType,
+  authToken?: string,
+  userActionSignature?: string
+): Promise<OutputType> => {
+  return await makeHttpRequest<OutputType>(
+    'PUT',
+    api,
+    input ? JSON.stringify(input) : '',
+    authToken || '',
+    userActionSignature
+  )
+}
+
+export const postRequest = async <InputType, OutputType>(
+  api: string,
+  input: InputType,
+  authToken?: string,
+  userActionSignature?: string
+): Promise<OutputType> => {
+  return await makeHttpRequest<OutputType>(
+    'POST',
+    api,
+    input ? JSON.stringify(input) : '',
+    authToken || '',
+    userActionSignature
+  )
+}
+
+export const deleteRequest = async <InputType, OutputType>(
+  api: string,
+  input: InputType,
+  authToken?: string,
+  userActionSignature?: string
+): Promise<OutputType> => {
+  return await makeHttpRequest<OutputType>(
+    'DELETE',
+    api,
+    input ? JSON.stringify(input) : '',
+    authToken || '',
+    userActionSignature
+  )
+}
