@@ -5,8 +5,10 @@ import { PublicKey } from "./types";
 
 interface AppState {
   wallet: PublicKey | null;
+  address: string;
 }
 
 export const UIStore = new Store<AppState>({
   wallet: null,
+  address: ""
 });

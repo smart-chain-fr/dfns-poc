@@ -2,6 +2,7 @@ import { apiKeyToken } from './constants'
 import { makeHttpRequest } from './makeHttpRequest'
 import { signRequestWithApiKey } from './signRequestWithApiKey'
 import {
+  AddressSuccess,
   CreateUserActionSignatureChallengeInput,
   CreateUserLoginChallengeResponse,
   CreateUserLoginInput,
@@ -134,6 +135,23 @@ export const listPublicKeys = async (authToken: string) : Promise<ListPublicKeys
     payload: '',
   }
   const response = await makeHttpRequest<ListPublicKeysSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  )
+  return response
+}
+
+
+export const getAddress = async (authToken: string, id: string) : Promise<AddressSuccess> => {
+  const request = {
+    method: 'GET',
+    path:  `/public-keys/${id}/address?network=ETH`,
+    payload: '',
+  }
+  console.log("getAddress ", request.path);
+  const response = await makeHttpRequest<AddressSuccess>(
     request.method,
     request.path,
     request.payload,

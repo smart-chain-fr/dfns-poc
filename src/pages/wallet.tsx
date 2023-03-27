@@ -9,6 +9,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { signedRequest } from '@/utils/signedRequest';
 import { AssetAccount, PublicKey } from '@/utils/types';
 import { UIStore } from '@/utils/store';
+import { ToastContainer, toast } from 'react-toastify'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,6 +19,7 @@ export default function Wallet() {
   const [accessKey, setAccessKey] = useState('-')
   const [loading, setLoading] = useState(false);
   const wallet = UIStore.useState(s => s.wallet);
+  const walletAddress = UIStore.useState(s => s.address);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -27,31 +29,53 @@ export default function Wallet() {
         router.push('/login')
       }
     }, 10000)
-    return () => clearInterval(interval)
-  }, [accessKey, router])
 
-  const handleCreateWallet = async () => {
-    setLoading(true)
-    signedRequest<PublicKey>(
-      'POST',
-      '/api/public-keys',
-      'POST',
-      /*
-      '/assets/asset-accounts',
-      JSON.stringify({ assetSymbol: 'ETH' }
-      */
-     '/public-keys',
-     '{}'
-    ).then((pk: PublicKey) => {   //  AssetAccount) => {
-      console.log('Public key created: '  + JSON.stringify(pk))
-      UIStore.update(s => {
-        s.wallet = pk;
-      })
-      router.push('wallet')
+    // Get wallet address
+    const endpoint = `/api/public-keys/address`
+    const options = {
+        method: 'GET',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessKey}`
+        },
+        body: JSON.stringify({id: wallet?.id})
+    }
+    console.log("Fetching address");
+    fetch(endpoint, options).then(async (response) => {
+        const address = (await response.json()).address
+        console.log("Address is: ", address);
+        UIStore.update(s => {
+            s.address = address;
+        })    
     }).catch((error) => {
-      console.log(error)
+        toast.error("Couldn't get address: ", error)
     })
-  }
+
+    return () => clearInterval(interval)
+  }, [accessKey, router, wallet])
+
+//   const handleCreateWallet = async () => {
+//     setLoading(true)
+//     signedRequest<PublicKey>(
+//       'POST',
+//       '/api/public-keys',
+//       'POST',
+//       /*
+//       '/assets/asset-accounts',
+//       JSON.stringify({ assetSymbol: 'ETH' }
+//       */
+//      '/public-keys',
+//      '{}'
+//     ).then((pk: PublicKey) => {   //  AssetAccount) => {
+//       console.log('Public key created: '  + JSON.stringify(pk))
+//       UIStore.update(s => {
+//         s.wallet = pk;
+//       })
+//       router.push('wallet')
+//     }).catch((error) => {
+//       console.log(error)
+//     })
+//   }
 
   return (
     <>
@@ -73,10 +97,10 @@ export default function Wallet() {
       />
       Here's your wallet address:      
 
+    <div>{walletAddress}</div>       
     <div>{wallet?.id}</div>       
-    <div>{wallet?.publicKey}</div>       
     
-    <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton>
+    {/* <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton> */}
 
       </main>
     </>

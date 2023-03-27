@@ -246,6 +246,13 @@ export type ListPublicKeysSuccess = {
   items: PublicKey[]
 }
 
+export type AddressSuccess = {
+  publicKeyId: string
+  network: string
+  address: string
+}
+
+
 export enum WebAuthnChallengeKind {
   Create = 'create',
   Get = 'get',
