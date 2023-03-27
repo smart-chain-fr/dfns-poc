@@ -105,3 +105,18 @@ a {
     color-scheme: dark;
   }
 }
+
+.hflex {
+  display: flex;
+  gap: .5em;
+  align-items: center;
+  justify-content: center;
+}
+
+.vflex {
+  display: flex;
+  gap: 1em;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}

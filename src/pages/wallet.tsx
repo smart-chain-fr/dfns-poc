@@ -10,6 +10,11 @@ import { signedRequest } from '@/utils/signedRequest';
 import { AssetAccount, PublicKey } from '@/utils/types';
 import { UIStore } from '@/utils/store';
 import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+import TextField from '@mui/material/TextField';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import IconButton from '@mui/material/IconButton';
+
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -80,6 +85,20 @@ export default function Wallet() {
 //     })
 //   }
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(walletAddress); 
+    toast.success('Copied!', {
+        position: "bottom-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
+  }
+
   return (
     <>
       <Head>
@@ -89,20 +108,34 @@ export default function Wallet() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-
+      <ToastContainer
+        position="bottom-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+    />
       <Image
         src={logo}
         alt="logo"
-        width={411} 
+        width={410} 
         height={200} 
         // blurDataURL="data:..." automatically provided
         // placeholder="blur" // Optional blur-up while loading
       />
-      <p>Here&lsquo;s your wallet address:      </p>
-
-    <div>{walletAddress}</div>       
-    <div>{wallet?.id}</div>       
-    
+      <div className="vflex">
+      <p>Here&lsquo;s your wallet address:</p>
+     <div className='hflex'>
+        <TextField disabled sx={{ width: '40ch' }} label={walletAddress} variant="outlined" />
+        <IconButton onClick={handleCopy}>
+            <ContentCopyIcon/>
+        </IconButton>
+    </div></div>
     {/* <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton> */}
 
       </main>
