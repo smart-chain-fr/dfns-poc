@@ -23,7 +23,7 @@ const createAccountHandler = async (
   const input = req.body as CreatePublicKeyInput
   const response =
     await postRequest<CreatePublicKeyInput, PublicKey>(   
-      'public-keys', 
+      '/public-keys', 
       input,
       getBearerToken(req.headers.authorization),
       (req.headers['x-dfns-useraction'] as string || '')
