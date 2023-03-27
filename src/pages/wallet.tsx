@@ -31,14 +31,13 @@ export default function Wallet() {
     }, 10000)
 
     // Get wallet address
-    const endpoint = `/api/public-keys/address`
+    const endpoint = `/api/public-keys/${wallet?.id}/address`
     const options = {
         method: 'GET',
         headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessKey}`
         },
-        body: JSON.stringify({id: wallet?.id})
     }
     console.log("Fetching address");
     fetch(endpoint, options).then(async (response) => {

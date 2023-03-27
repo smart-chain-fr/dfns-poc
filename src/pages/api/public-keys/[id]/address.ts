@@ -11,9 +11,14 @@ const getAddressHandler = async (
   req: NextApiRequest,
   res: NextApiResponse<AddressSuccess | ErrorMessage>
 ) => {
-    console.log("getAddressHandler ", req.body.id);
-  const response = await getAddress((req.headers.authorization || '').substring('Bearer '.length), req.body.id)
-  res.status(200).json(response)
+  const { id } = req.query
+    console.log("getAddressHandler ", id);
+  if (!id) {
+    res.status(400).json({ error: 'ID missing' })
+  } else {
+    const response = await getAddress((req.headers.authorization || '').substring('Bearer '.length), id)
+    res.status(200).json(response)
+  }
 }
 
 
