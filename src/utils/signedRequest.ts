@@ -68,6 +68,7 @@ export const signedRequest = async <T>(
   options.headers['x-dfns-useraction'] = signature.userAction
   options.body = body
   options.method = method
+  console.log("About to call signedRequestResponse with: ", endpoint, options);
   const signedRequestResponse = await fetch(endpoint, options)
   return await signedRequestResponse.json() as T
 }

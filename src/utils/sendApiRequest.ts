@@ -8,7 +8,8 @@ import {
   CreateUserLoginResponse,
   CreateUserRegistrationChallengeResponse,
   CreateUserRegistrationInput,
-  ListAssetAccountsSuccess
+  ListAssetAccountsSuccess,
+  ListPublicKeysSuccess
 } from './types'
 
 export const delegatedLogin = async (userName: string) : Promise<string> => {
@@ -124,6 +125,24 @@ export const listAssetAccounts = async (authToken: string) : Promise<ListAssetAc
   )
   return response
 }
+
+
+export const listPublicKeys = async (authToken: string) : Promise<ListPublicKeysSuccess> => {
+  const request = {
+    method: 'GET',
+    path:  '/public-keys',
+    payload: '',
+  }
+  const response = await makeHttpRequest<ListPublicKeysSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  )
+  return response
+}
+
+
 
 export const getUserActionChallenge = async (
   input: CreateUserActionSignatureChallengeInput,

@@ -7,7 +7,7 @@ import { useRouter } from "next/router"
 import logo from '../../public/logo.png'
 import Button from '@mui/material/Button';
 import { signedRequest } from '@/utils/signedRequest';
-import { AssetAccount } from '@/utils/types';
+import { AssetAccount, PublicKey } from '@/utils/types';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,14 +28,18 @@ export default function Home() {
   }, [accessKey, router])
 
   const handleCreateWallet = async () => {
-    signedRequest<AssetAccount>(
+    signedRequest<PublicKey>(
       'POST',
-      '/api/accounts',
+      '/api/public-keys',
       'POST',
+      /*
       '/assets/asset-accounts',
       JSON.stringify({ assetSymbol: 'ETH' }
-    )).then((assetAccount: AssetAccount) => {
-      console.log('Asset account created: '  + JSON.stringify(assetAccount))
+      */
+     '/public-keys',
+     '{}'
+    ).then((pk: PublicKey) => {   //  AssetAccount) => {
+      console.log('Public key created: '  + JSON.stringify(pk))
     }).catch((error) => {
       console.log(error)
     })

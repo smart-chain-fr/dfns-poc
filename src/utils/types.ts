@@ -233,8 +233,17 @@ export type AssetAccount = {
   authorizations?: AssetAccountAuthorization[]
 }
 
+export type PublicKey = {
+  id: string
+  publicKey: string
+}
+
 export type ListAssetAccountsSuccess = {
   items: AssetAccount[]
+}
+
+export type ListPublicKeysSuccess = {
+  items: PublicKey[]
 }
 
 export enum WebAuthnChallengeKind {
@@ -282,3 +291,8 @@ export type CreateAssetAccountInput = {
   tags?: string[]
   name?: string
 }
+
+export type CreatePublicKeyInput = {
+  isEddsa?: boolean
+}
+
