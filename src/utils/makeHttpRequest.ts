@@ -27,6 +27,7 @@ export const makeHttpRequest = async<TResponse> (
         path: path,
         method: method,
         headers: {
+          'Accept': 'application/json',
           'X-DFNS-APPID': appId,
           'X-DFNS-NONCE': generateNonce(),
           'X-DFNS-USERACTION': userActionSignature,
@@ -49,6 +50,7 @@ export const makeHttpRequest = async<TResponse> (
         }
 
         res.on('end', async () => {
+          console.log("src/utils/makeHttpRequest.ts:52 ", response);
           resolve(JSON.parse(response) as TResponse)
         })
       }
