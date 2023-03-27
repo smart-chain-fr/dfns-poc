@@ -29,7 +29,13 @@ export default function Wallet() {
         router.push('/login')
       }
     }, 10000)
+    return () => clearInterval(interval)
+  }, [accessKey, router, wallet])
 
+  useEffect(() => {
+    if (!accessKey) {
+      return
+    }
     // Get wallet address
     const endpoint = `/api/public-keys/${wallet?.id}/address`
     const options = {
@@ -45,13 +51,11 @@ export default function Wallet() {
         console.log("Address is: ", address);
         UIStore.update(s => {
             s.address = address;
-        })    
+        })
     }).catch((error) => {
         toast.error("Couldn't get address: ", error)
     })
-
-    return () => clearInterval(interval)
-  }, [accessKey, router, wallet])
+  }, [accessKey, wallet])
 
 //   const handleCreateWallet = async () => {
 //     setLoading(true)
@@ -94,7 +98,7 @@ export default function Wallet() {
         // blurDataURL="data:..." automatically provided
         // placeholder="blur" // Optional blur-up while loading
       />
-      Here's your wallet address:      
+      <p>Here&lsquo;s your wallet address:      </p>
 
     <div>{walletAddress}</div>       
     <div>{wallet?.id}</div>       
