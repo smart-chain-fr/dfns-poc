@@ -12,11 +12,12 @@ import { UIStore } from '@/utils/store';
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+export default function Wallet() {
   let item;
   const router = useRouter()
   const [accessKey, setAccessKey] = useState('-')
   const [loading, setLoading] = useState(false);
+  const wallet = UIStore.useState(s => s.wallet);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -70,8 +71,12 @@ export default function Home() {
         // blurDataURL="data:..." automatically provided
         // placeholder="blur" // Optional blur-up while loading
       />
-      Your user has logged in and is ready to create a wallet...
-      <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton>
+      Here's your wallet address:      
+
+    <div>{wallet?.id}</div>       
+    <div>{wallet?.publicKey}</div>       
+    
+    <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton>
 
       </main>
     </>
