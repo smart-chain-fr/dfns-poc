@@ -16,7 +16,7 @@ const getAddressHandler = async (
   if (!id) {
     res.status(400).json({ error: 'ID missing' })
   } else {
-    const response = await getAddress((req.headers.authorization || '').substring('Bearer '.length), id)
+    const response = await getAddress((req.headers.authorization || '').substring('Bearer '.length), id as string)
     res.status(200).json(response)
   }
 }
