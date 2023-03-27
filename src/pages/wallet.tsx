@@ -30,10 +30,10 @@ export default function Wallet() {
       }
     }, 10000)
     return () => clearInterval(interval)
-  }, [accessKey, router, wallet])
+  }, [accessKey, router])
 
   useEffect(() => {
-    if (!accessKey) {
+    if (!accessKey || accessKey === '-') {
       return
     }
     // Get wallet address
