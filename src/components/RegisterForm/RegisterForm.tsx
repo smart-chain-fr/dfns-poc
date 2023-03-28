@@ -26,6 +26,7 @@ export default function RegisterForm() {
 
   const handleRegister = async (event: any) => {
     event.preventDefault();
+    setLoading(true);
 
     const data = {
       username: (usernameRef?.current as any)?.value,
@@ -121,11 +122,13 @@ export default function RegisterForm() {
           .catch((e) => {
             console.log(e);
             toast.error("Unable to register the user");
+            setLoading(false);
           });
       })
       .catch((e) => {
         console.log(e);
         toast.error("Unable to register the user");
+        setLoading(false);
       });
   };
 

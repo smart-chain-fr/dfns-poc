@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -34,12 +35,10 @@ export default function LoginForm() {
       .then(async (response) => {
         const token = (await response.json()).token;
         localStorage.setItem("access_key", token);
-
         router.push("/");
       })
       .catch((error) => {
         toast.error("User not registered.");
-
         router.push("/register");
       });
   };
