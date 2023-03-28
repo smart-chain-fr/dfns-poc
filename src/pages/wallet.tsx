@@ -69,6 +69,17 @@ export default function Wallet() {
   // Demonstrate a simple asset transfer with hardcoded values
   const handleTransfer = async () => {
     setLoading(true);
+    toast.info("Transfering funds back...", {
+      position: "bottom-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+
     signedRequest<PaymentSuccess>(
       "POST",
       `/api/accounts/${wallet?.id}/transfers`,
@@ -86,6 +97,7 @@ export default function Wallet() {
     )
       .then((payment: PaymentSuccess) => {
         console.log(payment);
+        setHasBalance(false);
       })
       .catch((error) => {
         console.log(error);
