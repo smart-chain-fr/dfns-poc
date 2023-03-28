@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import logo from "../../public/logo.png";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { signedRequest } from "@/utils/signedRequest";
-import { AssetAccount, PublicKey, PaymentSuccess } from "@/utils/types";
+import { PaymentSuccess } from "@/utils/types";
 import { UIStore } from "@/utils/store";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,7 +18,6 @@ import IconButton from "@mui/material/IconButton";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Wallet() {
-  let item;
   const router = useRouter();
   const [accessKey, setAccessKey] = useState("-");
   const [loading, setLoading] = useState(false);

@@ -1,61 +1,88 @@
-import { useRouter } from "next/router"
-import { ToastContainer, toast } from 'react-toastify'
-import Link from 'next/link'
+import { useRouter } from "next/router";
+import { ToastContainer, toast } from "react-toastify";
+import Link from "next/link";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { useState, useRef } from "react";
 
 export default function LoginForm() {
-  const router = useRouter()
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const usernameRef = useRef(null);
 
   // Handles the submit event on form submit.
   const handleLogin = async (event: any) => {
     // Stop the form from submitting and refreshing the page.
-    event.preventDefault()
+    event.preventDefault();
+    setLoading(true);
 
-    // Get data from the form.
     const data = {
-      username: event.target.username.value,
-    }
-
-    // Send the data to the server in JSON format.
-
-    // API endpoint where we send form data.
-    const endpoint = '/api/login'
-
-    // Form the request for sending data to the server.
+      username: (usernameRef?.current as any)?.value,
+    };
+    const endpoint = "/api/login";
     const options = {
-      // The method is POST because we are sending data.
-      method: 'POST',
-      // Tell the server we're sending JSON.
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      // Body of the request is the JSON data we created above.
       body: JSON.stringify(data),
-    }
+    };
 
     // Send the form data to our forms API on Vercel and get a response.
-    fetch(endpoint, options).then(async (response) => {
-      const token = (await response.json()).token
-      localStorage.setItem('access_key', token)
+    fetch(endpoint, options)
+      .then(async (response) => {
+        const token = (await response.json()).token;
+        localStorage.setItem("access_key", token);
 
-      router.push("/")
-    }).catch((error) => {
-      toast.error("User not registered.")
+        router.push("/");
+      })
+      .catch((error) => {
+        toast.error("User not registered.");
 
-      router.push("/register")
-    })
-  }
+        router.push("/register");
+      });
+  };
 
   return (
     <div>
       <ToastContainer />
 
-      <form onSubmit={handleLogin}>
-        <label htmlFor="username">Username</label>
-        <input type="text" id="username" name="username" required />
-
-        <button type="submit">Login</button>
-      </form>
-      Click <Link href="/register">here</Link> to register
+      <div className="vflex">
+        <Box
+          component="form"
+          sx={{
+            "& > :not(style)": { m: 1, width: "40ch" },
+          }}
+          noValidate
+          autoComplete="off"
+        >
+          <div className="hflex">
+            <TextField
+              id="username"
+              label="Username"
+              variant="outlined"
+              inputRef={usernameRef}
+            />
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              onClick={handleLogin}
+            >
+              Login
+            </LoadingButton>
+          </div>
+        </Box>
+        <div className="hflex">
+          <h4>
+            Click{" "}
+            <Link href="/register" style={{ color: "blue" }}>
+              here
+            </Link>{" "}
+            to register
+          </h4>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
