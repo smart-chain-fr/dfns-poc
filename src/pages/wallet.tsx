@@ -98,6 +98,16 @@ export default function Wallet() {
       .then((payment: PaymentSuccess) => {
         console.log(payment);
         setHasBalance(false);
+        toast.success("Transfer Completed!", {
+          position: "bottom-center",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       })
       .catch((error) => {
         console.log(error);
