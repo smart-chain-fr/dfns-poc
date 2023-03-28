@@ -45,7 +45,7 @@ export default function Wallet() {
       return;
     }
     // Get wallet address
-    let endpoint = `/api/public-keys/${wallet?.id}/address`;
+    let endpoint = `/api/accounts/${wallet?.id}`;
     let options = {
       method: "GET",
       headers: {

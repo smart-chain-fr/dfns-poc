@@ -1,56 +1,53 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router"
-import logo from '../../public/logo.png'
-import LoadingButton from '@mui/lab/LoadingButton';
-import { signedRequest } from '@/utils/signedRequest';
-import { AssetAccount, PublicKey } from '@/utils/types';
-import { UIStore } from '@/utils/store';
+import { useRouter } from "next/router";
+import logo from "../../public/logo.png";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { signedRequest } from "@/utils/signedRequest";
+import { AssetAccount } from "@/utils/types";
+import { UIStore } from "@/utils/store";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  let item;
-  const router = useRouter()
-  const [accessKey, setAccessKey] = useState('-')
+  const router = useRouter();
+  const [accessKey, setAccessKey] = useState("-");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const key = localStorage.getItem('access_key')
-      setAccessKey(key || '')
+      const key = localStorage.getItem("access_key");
+      setAccessKey(key || "");
       if (!key) {
-        router.push('/login')
+        router.push("/login");
       }
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [accessKey, router])
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [accessKey, router]);
 
   const handleCreateWallet = async () => {
-    setLoading(true)
-    signedRequest<PublicKey>(
-      'POST',
-      '/api/public-keys',
-      'POST',
-      /*
-      '/assets/asset-accounts',
-      JSON.stringify({ assetSymbol: 'ETH' }
-      */
-     '/public-keys',
-     '{}'
-    ).then((pk: PublicKey) => {   //  AssetAccount) => {
-      console.log('Public key created: '  + JSON.stringify(pk))
-      UIStore.update(s => {
-        s.wallet = pk;
+    setLoading(true);
+    signedRequest<AssetAccount>(
+      "POST",
+      "/api/accounts",
+      "POST",
+      "/assets/asset-accounts",
+      JSON.stringify({ assetSymbol: "ETH" })
+    )
+      .then((assetAccount: AssetAccount) => {
+        console.log("Account created: " + JSON.stringify(assetAccount));
+        UIStore.update((s) => {
+          s.wallet = assetAccount;
+        });
+        router.push("wallet");
       })
-      router.push('wallet')
-    }).catch((error) => {
-      console.log(error)
-    })
-  }
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   return (
     <>
@@ -61,19 +58,16 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-
-      <Image
-        src={logo}
-        alt="logo"
-        width={411} 
-        height={200} 
-        // blurDataURL="data:..." automatically provided
-        // placeholder="blur" // Optional blur-up while loading
-      />
-      Your user has logged in and is ready to create a wallet...
-      <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton>
-
+        <Image src={logo} alt="logo" width={411} height={200} />
+        Your user has logged in and is ready to create a wallet...
+        <LoadingButton
+          variant="contained"
+          loading={loading}
+          onClick={handleCreateWallet}
+        >
+          Create Wallet
+        </LoadingButton>
       </main>
     </>
-  )
+  );
 }
