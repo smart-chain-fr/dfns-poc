@@ -1,50 +1,56 @@
-import { appOrigin } from "@/utils/constants"
-import { CreateUserCredentialOptions, CreateUserRegistrationChallengeResponse, CredentialKind, RegistrationFirstFactor, WebAuthnChallengeKind } from "@/utils/types"
-import { useRouter } from "next/router"
-import { ToastContainer, toast } from 'react-toastify'
-import { arrayBufferToBase64UrlString, base64url, base64UrlStringToBuffer } from '@/utils/base64url'
+import { appOrigin } from "@/utils/constants";
+import {
+  CreateUserCredentialOptions,
+  CreateUserRegistrationChallengeResponse,
+  CredentialKind,
+  RegistrationFirstFactor,
+  WebAuthnChallengeKind,
+} from "@/utils/types";
+import { useRouter } from "next/router";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  arrayBufferToBase64UrlString,
+  base64url,
+  base64UrlStringToBuffer,
+} from "@/utils/base64url";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { useState, useRef } from "react";
 
 export default function RegisterForm() {
-  const router = useRouter()
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const usernameRef = useRef(null);
 
-  // Handles the submit event on form submit.
   const handleRegister = async (event: any) => {
-    // Stop the form from submitting and refreshing the page.
-    event.preventDefault()
+    event.preventDefault();
 
-    // Get data from the form.
     const data = {
-      username: event.target.username.value,
-    }
+      username: (usernameRef?.current as any)?.value,
+    };
 
-    // Send the data to the server in JSON format.
-
-    // API endpoint where we send form data.
-    const endpoint = '/api/register/init'
-
-    // Form the request for sending data to the server.
+    const endpoint = "/api/register/init";
     const options = {
-      // The method is POST because we are sending data.
-      method: 'POST',
-      // Tell the server we're sending JSON.
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      // Body of the request is the JSON data we created above.
       body: JSON.stringify(data),
-    }
+    };
 
-    // Send the form data to our forms API on Vercel and get a response.
-    fetch(endpoint, options).then(async (response) => {
-      const challenge : CreateUserRegistrationChallengeResponse = await response.json()
+    fetch(endpoint, options)
+      .then(async (response) => {
+        const challenge: CreateUserRegistrationChallengeResponse =
+          await response.json();
 
-      const credential = (await navigator.credentials.create(
-        {
+        const credential = (await navigator.credentials.create({
           publicKey: {
             challenge: Buffer.from(challenge.challenge),
             pubKeyCredParams: challenge.pubKeyCredParams.map((cred) => ({
               alg: cred.alg,
-              type: 'public-key'
+              type: "public-key",
             })),
             rp: {
               name: challenge.rp.name,
@@ -55,74 +61,103 @@ export default function RegisterForm() {
               id: Buffer.from(challenge.user.id),
               name: challenge.user.name,
             },
-            attestation: 'direct',
+            attestation: "direct",
             excludeCredentials: challenge.excludeCredentials.map((cred) => ({
               id: base64UrlStringToBuffer(cred.id),
-              type: 'public-key',
+              type: "public-key",
               transports: [],
             })),
             timeout: 60000,
           },
-        }
-      )) as PublicKeyCredential
-      const signedChallenge = credential.response as AuthenticatorAttestationResponse
-      let credentials = {
-        firstFactor: {
-          kind: CredentialKind.Fido2,
-          credentialId: credential.id,
-          signature: {
-            attestationData: signedChallenge.attestationObject,
-            clientData: signedChallenge.clientDataJSON,
+        })) as PublicKeyCredential;
+        const signedChallenge =
+          credential.response as AuthenticatorAttestationResponse;
+        let credentials = {
+          firstFactor: {
+            kind: CredentialKind.Fido2,
+            credentialId: credential.id,
+            signature: {
+              attestationData: signedChallenge.attestationObject,
+              clientData: signedChallenge.clientDataJSON,
+            },
           },
-        },
-      }
+        };
 
-      if (!credentials.firstFactor || credentials.firstFactor.kind !== CredentialKind.Fido2) {
-        throw new Error('Missing first factor credential.')
-      }
+        if (
+          !credentials.firstFactor ||
+          credentials.firstFactor.kind !== CredentialKind.Fido2
+        ) {
+          throw new Error("Missing first factor credential.");
+        }
 
-      let firstFactor : RegistrationFirstFactor = {
-        credentialKind: CredentialKind.Fido2,
-        credentialInfo: {
-          attestationData: arrayBufferToBase64UrlString(credentials.firstFactor.signature.attestationData),
-          clientData: arrayBufferToBase64UrlString(credentials.firstFactor.signature.clientData),
-          credId: credentials.firstFactor.credentialId,
-        },
-      }
-  
-      const options2 = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + challenge.temporaryAuthenticationToken,
-        },
-        body: JSON.stringify({
-          firstFactorCredential: firstFactor,
-        })
-      }
-      fetch('/api/register', options2).then(async (response) => {
-        toast.success('User registered')
-        router.push('/login')
-      }).catch((e) => {
-        console.log(e);
-        toast.error("Unable to register the user")
+        let firstFactor: RegistrationFirstFactor = {
+          credentialKind: CredentialKind.Fido2,
+          credentialInfo: {
+            attestationData: arrayBufferToBase64UrlString(
+              credentials.firstFactor.signature.attestationData
+            ),
+            clientData: arrayBufferToBase64UrlString(
+              credentials.firstFactor.signature.clientData
+            ),
+            credId: credentials.firstFactor.credentialId,
+          },
+        };
+
+        const options2 = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + challenge.temporaryAuthenticationToken,
+          },
+          body: JSON.stringify({
+            firstFactorCredential: firstFactor,
+          }),
+        };
+        fetch("/api/register", options2)
+          .then(async (response) => {
+            toast.success("User registered");
+            router.push("/login");
+          })
+          .catch((e) => {
+            console.log(e);
+            toast.error("Unable to register the user");
+          });
       })
-    }).catch((e) => {
-      console.log(e);
-      toast.error("Unable to register the user")
-    })
-  }
+      .catch((e) => {
+        console.log(e);
+        toast.error("Unable to register the user");
+      });
+  };
 
   return (
     <div>
       <ToastContainer />
-
-      <form onSubmit={handleRegister}>
-        <label htmlFor="username">Username</label>
-        <input type="text" id="username" name="username" required />
-
-        <button type="submit">Register</button>
-      </form>
+      <div className="vflex">
+        <Box
+          component="form"
+          sx={{
+            "& > :not(style)": { m: 1, width: "40ch" },
+          }}
+          noValidate
+          autoComplete="off"
+        >
+          <div className="hflex">
+            <TextField
+              id="username"
+              label="Username"
+              variant="outlined"
+              inputRef={usernameRef}
+            />
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              onClick={handleRegister}
+            >
+              Register
+            </LoadingButton>
+          </div>
+        </Box>
+      </div>
     </div>
-  )
+  );
 }
