@@ -3,6 +3,7 @@ import { makeHttpRequest } from "./makeHttpRequest";
 import { signRequestWithApiKey } from "./signRequestWithApiKey";
 import {
   AddressSuccess,
+  BalanceSuccess,
   CreateUserActionSignatureChallengeInput,
   CreateUserLoginChallengeResponse,
   CreateUserLoginInput,
@@ -159,8 +160,32 @@ export const getAddress = async (
     path: `/public-keys/${id}/address?network=ETH`,
     payload: "",
   };
-  console.log("getAddress ", request.path);
   const response = await makeHttpRequest<AddressSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  );
+  return response;
+};
+
+export const getBalance = async (
+  authToken: string,
+  id: string
+): Promise<BalanceSuccess> => {
+  const request = {
+    method: "GET",
+    path: `/assets/asset-accounts/${id}/balance`,
+    payload: "",
+  };
+  // TODO: Remove stub
+  return {
+    id: "aa-network-burger-21cb681b2c",
+    assetSymbol: "ETH",
+    balance: "249979348805298000",
+    maxUnitBalance: ".2499",
+  };
+  const response = await makeHttpRequest<BalanceSuccess>(
     request.method,
     request.path,
     request.payload,

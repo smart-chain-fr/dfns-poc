@@ -22,7 +22,8 @@ export default function Wallet() {
   const router = useRouter();
   const [accessKey, setAccessKey] = useState("-");
   const [loading, setLoading] = useState(false);
-  const [hasBalance, setHasBalance] = useState(true);
+  const [balance, setBalance] = useState(0);
+  const [hasBalance, setHasBalance] = useState(true); // 0 was showing up in the UI - this fixed it
   const wallet = UIStore.useState((s) => s.wallet);
   const walletAddress = UIStore.useState((s) => s.address);
 
@@ -44,25 +45,41 @@ export default function Wallet() {
       return;
     }
     // Get wallet address
-    const endpoint = `/api/public-keys/${wallet?.id}/address`;
-    const options = {
+    let endpoint = `/api/public-keys/${wallet?.id}/address`;
+    let options = {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessKey}`,
       },
     };
-    console.log("Fetching address");
     fetch(endpoint, options)
       .then(async (response) => {
         const address = (await response.json()).address;
-        console.log("Address is: ", address);
         UIStore.update((s) => {
           s.address = address;
         });
       })
       .catch((error) => {
         toast.error("Couldn't get address: ", error);
+      });
+
+    // Get wallet balance
+    endpoint = `/api/accounts/${wallet?.id}/balance`;
+    options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessKey}`,
+      },
+    };
+    fetch(endpoint, options)
+      .then(async (response) => {
+        const maxUnitBalance = (await response.json()).maxUnitBalance;
+        setBalance(maxUnitBalance);
+      })
+      .catch((error) => {
+        toast.error("Couldn't get balance: ", error);
       });
   }, [accessKey, wallet]);
 
@@ -164,7 +181,7 @@ export default function Wallet() {
               <ContentCopyIcon />
             </IconButton>
           </div>
-          <h2> Balance: 0 ETH</h2>
+          <h2> Balance: {balance} ETH</h2>
         </div>
         {hasBalance && (
           <LoadingButton

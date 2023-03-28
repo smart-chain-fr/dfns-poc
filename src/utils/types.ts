@@ -264,6 +264,13 @@ export type AddressSuccess = {
   address: string;
 };
 
+export type BalanceSuccess = {
+  id: string;
+  assetSymbol: string;
+  balance: string;
+  maxUnitBalance: string;
+};
+
 export type PaymentSuccess = {
   receiver: {
     kind: string;
