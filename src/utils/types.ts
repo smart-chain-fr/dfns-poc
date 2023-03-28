@@ -3,303 +3,337 @@ export enum CredentialKind {
   Key = "Key",
   Password = "Password",
   Totp = "Totp",
-  RecoveryKey = "RecoveryKey"
+  RecoveryKey = "RecoveryKey",
 }
 
 export enum CredentialFactor {
   first = "first",
   second = "second",
-  either = "either"
+  either = "either",
 }
 
 export type SupportedCredentials = {
-  kind: CredentialKind
-  factor: CredentialFactor
-  requiresSecondFactor: boolean
-}
+  kind: CredentialKind;
+  factor: CredentialFactor;
+  requiresSecondFactor: boolean;
+};
 
 export type AllowCredential = {
-    type: 'public-key'
-    id: string
-    transports?: string
-}
+  type: "public-key";
+  id: string;
+  transports?: string;
+};
 
 export type AllowCredentials = {
-  webauthn: AllowCredential[]
-  key: AllowCredential[]
-}
+  webauthn: AllowCredential[];
+  key: AllowCredential[];
+};
 
 export type CreateUserLoginChallengeResponse = {
-  supportedCredentialKinds: SupportedCredentials[]
-  challenge: string
-  challengeIdentifier: string
-  externalAuthenticationUrl: string
-  allowCredentials: AllowCredentials
-}
+  supportedCredentialKinds: SupportedCredentials[];
+  challenge: string;
+  challengeIdentifier: string;
+  externalAuthenticationUrl: string;
+  allowCredentials: AllowCredentials;
+};
 
 export type CreateUserActionSignatureResponse = {
-    userAction: string
-}
+  userAction: string;
+};
 
 export type CreateUserLoginResponse = {
-  token: string
-}
+  token: string;
+};
 
 export type AuthenticationUserInformation = {
-  id: string
-  displayName: string
-  name: string
-}
+  id: string;
+  displayName: string;
+  name: string;
+};
 
 export type PubKeyCredParams = {
-  type: string
-  alg: number
-}
+  type: string;
+  alg: number;
+};
 
 export enum AuthenticatorRequirementOptions {
   required = "required",
   preferred = "preferred",
-  discouraged = "discouraged"
+  discouraged = "discouraged",
 }
 
 export type AuthenticatorSelection = {
-  authenticatorAttachment?: string
-  residentKey: AuthenticatorRequirementOptions
-  requireResidentKey: boolean
-  userVerification: AuthenticatorRequirementOptions
-}
+  authenticatorAttachment?: string;
+  residentKey: AuthenticatorRequirementOptions;
+  requireResidentKey: boolean;
+  userVerification: AuthenticatorRequirementOptions;
+};
 
 export enum FidoCredentialsTransportKind {
   usb = "usb",
   nfc = "nfc",
   ble = "ble",
   internal = "internal",
-  hybrid = "hybrid"
+  hybrid = "hybrid",
 }
 
 export type ExcludeCredentials = {
-  type: string
-  id: string
-  transports: FidoCredentialsTransportKind
-}
+  type: string;
+  id: string;
+  transports: FidoCredentialsTransportKind;
+};
 
 export type RelyingParty = {
-  id: string
-  name: string
-}
+  id: string;
+  name: string;
+};
 
 export type SupportedCredentialKinds = {
-  firstFactor: CredentialKind[]
-  secondFactor: CredentialKind[]
-}
+  firstFactor: CredentialKind[];
+  secondFactor: CredentialKind[];
+};
 
 export enum AuthenticatorAttestationOptions {
   none = "none",
   indirect = "indirect",
   direct = "direct",
-  enterprise = "enterprise"
+  enterprise = "enterprise",
 }
 
 export type CreateUserRegistrationChallengeResponse = {
-  temporaryAuthenticationToken: string
-  rp: RelyingParty
-  user: AuthenticationUserInformation
-  supportedCredentialKinds: SupportedCredentialKinds
-  otpUrl: string
-  challenge: string
-  authenticatorSelection: AuthenticatorSelection
-  attestation: AuthenticatorAttestationOptions
-  pubKeyCredParams: PubKeyCredParams[]
-  excludeCredentials: ExcludeCredentials[]
-}
+  temporaryAuthenticationToken: string;
+  rp: RelyingParty;
+  user: AuthenticationUserInformation;
+  supportedCredentialKinds: SupportedCredentialKinds;
+  otpUrl: string;
+  challenge: string;
+  authenticatorSelection: AuthenticatorSelection;
+  attestation: AuthenticatorAttestationOptions;
+  pubKeyCredParams: PubKeyCredParams[];
+  excludeCredentials: ExcludeCredentials[];
+};
 
 export type RegistrationConfirmationFido2 = {
-  credentialKind: CredentialKind.Fido2
-  credentialInfo: CredentialAssertion
-}
+  credentialKind: CredentialKind.Fido2;
+  credentialInfo: CredentialAssertion;
+};
 
 export type RegistrationConfirmationKey = {
-  credentialKind: CredentialKind.Key
-  credentialInfo: CredentialAssertion
-}
+  credentialKind: CredentialKind.Key;
+  credentialInfo: CredentialAssertion;
+};
 
 export type RegistrationConfirmationRecoveryKey = {
-  encryptedPrivateKey?: string
-  credentialInfo: CredentialAssertion
-  credentialKind: CredentialKind.RecoveryKey
-}
+  encryptedPrivateKey?: string;
+  credentialInfo: CredentialAssertion;
+  credentialKind: CredentialKind.RecoveryKey;
+};
 
 export type CredentialAssertion = {
-  credId: string
-  clientData: string
-  attestationData: string
-}
+  credId: string;
+  clientData: string;
+  attestationData: string;
+};
 
 export type RegistrationConfirmationPassword = {
-  credentialKind: CredentialKind.Password
-  credentialInfo: PasswordCredentialInformation
-}
+  credentialKind: CredentialKind.Password;
+  credentialInfo: PasswordCredentialInformation;
+};
 
 export type PasswordCredentialInformation = {
-  password: string
-}
+  password: string;
+};
 
 export type RegistrationConfirmationTotp = {
-  credentialKind: CredentialKind.Totp
-  credentialInfo: TotpCredentialInformation
-}
+  credentialKind: CredentialKind.Totp;
+  credentialInfo: TotpCredentialInformation;
+};
 
 export type TotpCredentialInformation = {
-  otpCode: string
-}
+  otpCode: string;
+};
 
-export type RegistrationFirstFactor = RegistrationConfirmationFido2 | RegistrationConfirmationKey | RegistrationConfirmationPassword
-export type RegistrationSecondFactor = RegistrationConfirmationFido2 | RegistrationConfirmationKey | RegistrationConfirmationTotp
+export type RegistrationFirstFactor =
+  | RegistrationConfirmationFido2
+  | RegistrationConfirmationKey
+  | RegistrationConfirmationPassword;
+export type RegistrationSecondFactor =
+  | RegistrationConfirmationFido2
+  | RegistrationConfirmationKey
+  | RegistrationConfirmationTotp;
 
 export type CreateUserRegistrationInput = {
-  firstFactorCredential: RegistrationFirstFactor
-  secondFactorCredential?: RegistrationSecondFactor
-  recoveryCredential?: RegistrationConfirmationRecoveryKey
-}
+  firstFactorCredential: RegistrationFirstFactor;
+  secondFactorCredential?: RegistrationSecondFactor;
+  recoveryCredential?: RegistrationConfirmationRecoveryKey;
+};
 
 export type AuthenticateUserPasswordInput = {
-  kind: CredentialKind.Password
-  password: string
-}
+  kind: CredentialKind.Password;
+  password: string;
+};
 
 export type AuthenticateUserFido2Input = {
-  kind: CredentialKind.Fido2
-  credentialAssertion: Fido2CredentialAssertion
-}
+  kind: CredentialKind.Fido2;
+  credentialAssertion: Fido2CredentialAssertion;
+};
 
 export type Fido2CredentialAssertion = {
-  credId: string
-  clientData: string
-  authenticatorData: string
-  signature: string
-  userHandle: string
-}
+  credId: string;
+  clientData: string;
+  authenticatorData: string;
+  signature: string;
+  userHandle: string;
+};
 
 export type KeyCredentialAssertion = {
-  credId: string
-  clientData: string
-  signature: string
-}
+  credId: string;
+  clientData: string;
+  signature: string;
+};
 
 export type AuthenticateUserKeyInput = {
-  kind: CredentialKind.Key
-  credentialAssertion: KeyCredentialAssertion
-}
+  kind: CredentialKind.Key;
+  credentialAssertion: KeyCredentialAssertion;
+};
 
 export type AuthenticateUserTotpInput = {
-  kind: CredentialKind.Totp
-  otpCode: string
-}
+  kind: CredentialKind.Totp;
+  otpCode: string;
+};
 
-export type AuthenticateUserFirstFactor = AuthenticateUserPasswordInput | AuthenticateUserFido2Input | AuthenticateUserKeyInput
-export type AuthenticateUserSecondFactor = AuthenticateUserFido2Input | AuthenticateUserKeyInput | AuthenticateUserTotpInput
+export type AuthenticateUserFirstFactor =
+  | AuthenticateUserPasswordInput
+  | AuthenticateUserFido2Input
+  | AuthenticateUserKeyInput;
+export type AuthenticateUserSecondFactor =
+  | AuthenticateUserFido2Input
+  | AuthenticateUserKeyInput
+  | AuthenticateUserTotpInput;
 
 export type CreateUserLoginInput = {
-    challengeIdentifier: string;
-    firstFactor: AuthenticateUserFirstFactor;
-    secondFactor?: AuthenticateUserSecondFactor;
-}
+  challengeIdentifier: string;
+  firstFactor: AuthenticateUserFirstFactor;
+  secondFactor?: AuthenticateUserSecondFactor;
+};
 
 export type CreateUserActionSignatureChallengeInput = {
-  userActionPayload: string
-  userActionHttpMethod: string
-  userActionHttpPath: string
-}
+  userActionPayload: string;
+  userActionHttpMethod: string;
+  userActionHttpPath: string;
+};
 
 export type AssetAccountAuthorization = {
-  kind: string
-  entityId: string
-  permission: string
+  kind: string;
+  entityId: string;
+  permission: string;
 };
 
 export type AssetAccount = {
-  tags?: string[]
-  externalId?: string
-  orgId: string
-  id: string
-  status: string
-  address?: string
-  publicKey?: string
-  publicKeyId?: string
-  assetSymbol: string
-  name: string
-  dateCreated: string
-  dateUpdate: string
-  authorizations?: AssetAccountAuthorization[]
-}
+  tags?: string[];
+  externalId?: string;
+  orgId: string;
+  id: string;
+  status: string;
+  address?: string;
+  publicKey?: string;
+  publicKeyId?: string;
+  assetSymbol: string;
+  name: string;
+  dateCreated: string;
+  dateUpdate: string;
+  authorizations?: AssetAccountAuthorization[];
+};
 
 export type PublicKey = {
-  id: string
-  publicKey: string
-}
+  id: string;
+  publicKey: string;
+};
 
 export type ListAssetAccountsSuccess = {
-  items: AssetAccount[]
-}
+  items: AssetAccount[];
+};
 
 export type ListPublicKeysSuccess = {
-  items: PublicKey[]
-}
+  items: PublicKey[];
+};
 
 export type AddressSuccess = {
-  publicKeyId: string
-  network: string
-  address: string
-}
+  publicKeyId: string;
+  network: string;
+  address: string;
+};
 
+export type PaymentSuccess = {
+  receiver: {
+    kind: string;
+    address: string;
+  };
+  assetSymbol: string;
+  amount: string;
+  note: string;
+  narrative: string;
+  externalId: string;
+  assetAccountId: string;
+  initiator: {
+    kind: string;
+    orgId: string;
+    employeeId: string;
+  };
+  status: string;
+  dateCreated: string;
+  orgId: string;
+  receiverAddress: string;
+  id: string;
+};
 
 export enum WebAuthnChallengeKind {
-  Create = 'create',
-  Get = 'get',
+  Create = "create",
+  Get = "get",
 }
 
 export type WebAuthnCreateCredentialChallenge = {
-  kind: WebAuthnChallengeKind.Create
-  creationOptions: CredentialCreationOptions
-}
+  kind: WebAuthnChallengeKind.Create;
+  creationOptions: CredentialCreationOptions;
+};
 
 export type WebAuthnGetCredentialChallenge = {
-  kind: WebAuthnChallengeKind.Get
-  requestOptions: CredentialRequestOptions
-}
+  kind: WebAuthnChallengeKind.Get;
+  requestOptions: CredentialRequestOptions;
+};
 
-export type WebAuthnChallenge = WebAuthnGetCredentialChallenge | WebAuthnCreateCredentialChallenge
-
+export type WebAuthnChallenge =
+  | WebAuthnGetCredentialChallenge
+  | WebAuthnCreateCredentialChallenge;
 
 export type CreateUserCredentialOptions = {
   supportedCredentialKinds: {
-    firstFactor: CredentialKind[]
-    secondFactor: CredentialKind[]
-  }
+    firstFactor: CredentialKind[];
+    secondFactor: CredentialKind[];
+  };
   credentialData: {
-    webAuthnClientData: WebAuthnChallenge
-    keyOrPasswordClientData: KeyClientData
-  }
-}
+    webAuthnClientData: WebAuthnChallenge;
+    keyOrPasswordClientData: KeyClientData;
+  };
+};
 
 export type KeyClientData = {
-  type: 'key.get' | 'key.create'
-  challenge: string
-  origin: string
-  crossOrigin?: boolean
-}
+  type: "key.get" | "key.create";
+  challenge: string;
+  origin: string;
+  crossOrigin?: boolean;
+};
 
 export type CreateAssetAccountInput = {
-  assetSymbol: string
-  groupSize?: number
-  groupThreshold?: number
-  publicKey?: string
-  externalId?: string
-  tags?: string[]
-  name?: string
-}
+  assetSymbol: string;
+  groupSize?: number;
+  groupThreshold?: number;
+  publicKey?: string;
+  externalId?: string;
+  tags?: string[];
+  name?: string;
+};
 
 export type CreatePublicKeyInput = {
-  isEddsa?: boolean
-}
-
+  isEddsa?: boolean;
+};

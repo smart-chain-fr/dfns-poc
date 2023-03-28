@@ -1,103 +1,111 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router"
-import logo from '../../public/logo.png'
-import LoadingButton from '@mui/lab/LoadingButton';
-import { signedRequest } from '@/utils/signedRequest';
-import { AssetAccount, PublicKey } from '@/utils/types';
-import { UIStore } from '@/utils/store';
-import { ToastContainer, toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
-import TextField from '@mui/material/TextField';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import IconButton from '@mui/material/IconButton';
+import { useRouter } from "next/router";
+import logo from "../../public/logo.png";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { signedRequest } from "@/utils/signedRequest";
+import { AssetAccount, PublicKey, PaymentSuccess } from "@/utils/types";
+import { UIStore } from "@/utils/store";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import TextField from "@mui/material/TextField";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import IconButton from "@mui/material/IconButton";
 
-
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Wallet() {
   let item;
-  const router = useRouter()
-  const [accessKey, setAccessKey] = useState('-')
+  const router = useRouter();
+  const [accessKey, setAccessKey] = useState("-");
   const [loading, setLoading] = useState(false);
-  const wallet = UIStore.useState(s => s.wallet);
-  const walletAddress = UIStore.useState(s => s.address);
+  const [hasBalance, setHasBalance] = useState(true);
+  const wallet = UIStore.useState((s) => s.wallet);
+  const walletAddress = UIStore.useState((s) => s.address);
 
+  // Set the access key JWT from local storage for use in API calls
   useEffect(() => {
     const interval = setInterval(async () => {
-      const key = localStorage.getItem('access_key')
-      setAccessKey(key || '')
+      const key = localStorage.getItem("access_key");
+      setAccessKey(key || "");
       if (!key) {
-        router.push('/login')
+        router.push("/login");
       }
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [accessKey, router])
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [accessKey, router]);
 
+  // Get the wallet address and balance
   useEffect(() => {
-    if (!accessKey || accessKey === '-') {
-      return
+    if (!accessKey || accessKey === "-" || !wallet || !wallet?.id) {
+      return;
     }
     // Get wallet address
-    const endpoint = `/api/public-keys/${wallet?.id}/address`
+    const endpoint = `/api/public-keys/${wallet?.id}/address`;
     const options = {
-        method: 'GET',
-        headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessKey}`
-        },
-    }
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessKey}`,
+      },
+    };
     console.log("Fetching address");
-    fetch(endpoint, options).then(async (response) => {
-        const address = (await response.json()).address
+    fetch(endpoint, options)
+      .then(async (response) => {
+        const address = (await response.json()).address;
         console.log("Address is: ", address);
-        UIStore.update(s => {
-            s.address = address;
-        })
-    }).catch((error) => {
-        toast.error("Couldn't get address: ", error)
-    })
-  }, [accessKey, wallet])
-
-//   const handleCreateWallet = async () => {
-//     setLoading(true)
-//     signedRequest<PublicKey>(
-//       'POST',
-//       '/api/public-keys',
-//       'POST',
-//       /*
-//       '/assets/asset-accounts',
-//       JSON.stringify({ assetSymbol: 'ETH' }
-//       */
-//      '/public-keys',
-//      '{}'
-//     ).then((pk: PublicKey) => {   //  AssetAccount) => {
-//       console.log('Public key created: '  + JSON.stringify(pk))
-//       UIStore.update(s => {
-//         s.wallet = pk;
-//       })
-//       router.push('wallet')
-//     }).catch((error) => {
-//       console.log(error)
-//     })
-//   }
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(walletAddress); 
-    toast.success('Copied!', {
-        position: "bottom-center",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+        UIStore.update((s) => {
+          s.address = address;
         });
-  }
+      })
+      .catch((error) => {
+        toast.error("Couldn't get address: ", error);
+      });
+  }, [accessKey, wallet]);
+
+  // Demonstrate a simple asset transfer with hardcoded values
+  const handleTransfer = async () => {
+    setLoading(true);
+    signedRequest<PaymentSuccess>(
+      "POST",
+      `/api/accounts/${wallet?.id}/transfers`,
+      "POST",
+      `/assets/asset-accounts/${wallet?.id}/payments`,
+      // Hardcoding transfer values for the demo
+      JSON.stringify({
+        receiver: {
+          kind: "BlockchainWalletAddress",
+          address: "TODO: ADD ADDRESS",
+        },
+        assetSymbol: "ETH",
+        amount: ".001",
+      })
+    )
+      .then((payment: PaymentSuccess) => {
+        console.log(payment);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  // Copy the wallet address when the icon is clicked
+  const handleCopy = () => {
+    navigator.clipboard.writeText(walletAddress);
+    toast.success("Copied!", {
+      position: "bottom-center",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
 
   return (
     <>
@@ -108,37 +116,44 @@ export default function Wallet() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-      <ToastContainer
-        position="bottom-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-    />
-      <Image
-        src={logo}
-        alt="logo"
-        width={410} 
-        height={200} 
-        // blurDataURL="data:..." automatically provided
-        // placeholder="blur" // Optional blur-up while loading
-      />
-      <div className="vflex">
-      <p>Here&lsquo;s your wallet address:</p>
-     <div className='hflex'>
-        <TextField disabled sx={{ width: '40ch' }} label={walletAddress} variant="outlined" />
-        <IconButton onClick={handleCopy}>
-            <ContentCopyIcon/>
-        </IconButton>
-    </div></div>
-    {/* <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>Create Wallet</LoadingButton> */}
-
+        <ToastContainer
+          position="bottom-center"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+        <Image src={logo} alt="logo" width={410} height={200} />
+        <div className="vflex">
+          <p>Here&lsquo;s your wallet address:</p>
+          <div className="hflex">
+            <TextField
+              disabled
+              sx={{ width: "40ch" }}
+              label={walletAddress}
+              variant="outlined"
+            />
+            <IconButton onClick={handleCopy}>
+              <ContentCopyIcon />
+            </IconButton>
+          </div>
+          <h2> Balance: 0 ETH</h2>
+        </div>
+        {hasBalance && (
+          <LoadingButton
+            variant="contained"
+            loading={loading}
+            onClick={handleTransfer}
+          >
+            Transfer
+          </LoadingButton>
+        )}
       </main>
     </>
-  )
+  );
 }
