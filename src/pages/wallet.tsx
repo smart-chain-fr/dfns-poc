@@ -25,17 +25,50 @@ export default function Wallet() {
   const [walletID, setWalletID] = useState();
   const [walletAddress, setWalletAddress] = useState("");
 
+  // Show or hide Transfer button
+  useEffect(() => {
+    if (balance > 0) {
+      setHasBalance(true);
+      setLoading(false);
+    } else setHasBalance(false);
+  }, [balance]);
+
   // Set the access key JWT from local storage for use in API calls
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const balInterval = setInterval(async () => {
       const key = localStorage.getItem("access_key");
       setAccessKey(key || "");
       if (!key) {
         router.push("/login");
       }
     }, 10000);
-    setWalletID(localStorage.getItem("walletID") as any);
-    setWalletAddress(localStorage.getItem("address") as any);
+
+    const wid = localStorage.getItem("walletID") || "";
+    const addr = localStorage.getItem("address") || "";
+    setWalletID(wid as any);
+    setWalletAddress(addr as any);
+    // Poll for balance.  Once server side, we would use a callback
+    const interval = setInterval(async () => {
+      if (!accessKey) return;
+      // Get wallet balance
+      const endpoint = `/api/accounts/${wid}/balance`;
+      const options = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessKey}`,
+        },
+      };
+      fetch(endpoint, options)
+        .then(async (response) => {
+          const maxUnitBalance = (await response.json()).maxUnitBalance;
+          setBalance(maxUnitBalance);
+        })
+        .catch((error) => {
+          toast.error("Couldn't get balance: ", error);
+        });
+    }, 10000);
+
     return () => clearInterval(interval);
   }, [accessKey, router]);
 
@@ -62,30 +95,12 @@ export default function Wallet() {
       .catch((error) => {
         toast.error("Couldn't get address: ", error);
       });
-
-    // Get wallet balance
-    endpoint = `/api/accounts/${walletID}/balance`;
-    options = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessKey}`,
-      },
-    };
-    fetch(endpoint, options)
-      .then(async (response) => {
-        const maxUnitBalance = (await response.json()).maxUnitBalance;
-        setBalance(maxUnitBalance);
-      })
-      .catch((error) => {
-        toast.error("Couldn't get balance: ", error);
-      });
   }, [accessKey, walletID]);
 
   // Demonstrate a simple asset transfer with hardcoded values
   const handleTransfer = async () => {
     setLoading(true);
-    toast.info("Transfering funds back...", {
+    toast.info("Transfering .00025 ETH...", {
       position: "bottom-center",
       autoClose: 3000,
       hideProgressBar: false,
@@ -105,16 +120,16 @@ export default function Wallet() {
       JSON.stringify({
         receiver: {
           kind: "BlockchainWalletAddress",
-          address: "0xE0765280dB8dbbD55342D337fd26B2e711D253af",
+          address: "0x81B8d1fa6a835809401213732D911C6A785a65Ed",
         },
-        assetSymbol: "ETH",
-        amount: ".001",
+        assetSymbol: "MATIC",
+        amount: ".00025",
       })
     )
       .then((payment: PaymentSuccess) => {
         console.log(payment);
         setHasBalance(false);
-        toast.success("Transfer Completed!", {
+        toast.success("Transfer Initiated!", {
           position: "bottom-center",
           autoClose: 1000,
           hideProgressBar: false,
@@ -182,7 +197,7 @@ export default function Wallet() {
               <ContentCopyIcon />
             </IconButton>
           </div>
-          <h2> Balance: {balance} ETH</h2>
+          <h2> Balance: {balance} MATIC</h2>
         </div>
         {hasBalance && (
           <LoadingButton

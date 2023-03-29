@@ -34,7 +34,7 @@ export default function Home() {
       "/api/accounts",
       "POST",
       "/assets/asset-accounts",
-      JSON.stringify({ assetSymbol: "ETH" })
+      JSON.stringify({ assetSymbol: "MATIC" })
     )
       .then((assetAccount: AssetAccount) => {
         console.log("Account created: " + JSON.stringify(assetAccount));

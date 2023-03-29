@@ -218,10 +218,10 @@ export const transfer = async (
     payload: JSON.stringify({
       receiver: {
         kind: "BlockchainWalletAddress",
-        address: "0xE0765280dB8dbbD55342D337fd26B2e711D253af",
+        address: "0x81B8d1fa6a835809401213732D911C6A785a65Ed",
       },
-      assetSymbol: "ETH",
-      amount: ".001",
+      assetSymbol: "MATIC",
+      amount: ".00025",
     }),
   };
   const response = await makeHttpRequest<PaymentSuccess>(
