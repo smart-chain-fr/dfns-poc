@@ -49,7 +49,9 @@ export default function Wallet() {
     setWalletAddress(addr as any);
     // Poll for balance.  Once server side, we would use a callback
     const interval = setInterval(async () => {
-      if (!accessKey) return;
+      if (!accessKey || accessKey === "-") {
+        return;
+      }
       // Get wallet balance
       const endpoint = `/api/accounts/${wid}/balance`;
       const options = {
@@ -72,7 +74,7 @@ export default function Wallet() {
     return () => clearInterval(interval);
   }, [accessKey, router]);
 
-  // Get the wallet address and balance
+  // Get the wallet address
   useEffect(() => {
     if (!accessKey || accessKey === "-" || !walletID) {
       return;
