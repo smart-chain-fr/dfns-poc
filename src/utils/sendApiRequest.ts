@@ -179,19 +179,6 @@ export const getAssetAccount = async (
     path: `/assets/asset-accounts/${id}`,
     payload: "",
   };
-  // TODO: Remove stub
-  // return {
-  //   assetSymbol: "ETH",
-  //   dateCreated: "2022-07-13T17:32:56.106Z",
-  //   address: "0x1686658c32862B6A29174F5de7a0bB0d66774956",
-  //   dateUpdate: "2022-07-13T17:32:56.106Z",
-  //   name: "Test account",
-  //   id: "aa-iowa-washington-7a99aa2fd5",
-  //   publicKey:
-  //     "xkeypub1addwnpepq2pqd7ethr4kn7yuj0z4ul80q0ml5jv6y8lgfzheltllu6y3e93j25we5nk",
-  //   orgId: "cu-purple-pip-1b417b958500",
-  //   status: "Enabled",
-  // };
   const response = await makeHttpRequest<AssetAccount>(
     request.method,
     request.path,
@@ -210,13 +197,6 @@ export const getBalance = async (
     path: `/assets/asset-accounts/${id}/balance`,
     payload: "",
   };
-  // // TODO: Remove stub
-  // return {
-  //   id: "aa-network-burger-21cb681b2c",
-  //   assetSymbol: "ETH",
-  //   balance: "249979348805298000",
-  //   maxUnitBalance: ".2499",
-  // };
   const response = await makeHttpRequest<BalanceSuccess>(
     request.method,
     request.path,
@@ -228,7 +208,8 @@ export const getBalance = async (
 
 export const transfer = async (
   authToken: string,
-  id: string
+  id: string,
+  userAction: string
 ): Promise<PaymentSuccess> => {
   const request = {
     method: "POST",
@@ -243,34 +224,12 @@ export const transfer = async (
       amount: ".001",
     }),
   };
-  // // TODO: Remove Stub
-  // return {
-  //   receiver: {
-  //     kind: "BlockchainWalletAddress",
-  //     address: "0x2b25C5DDeeB76fD73a62Cd9c1E2Ad4EbCf2BC076",
-  //   },
-  //   assetSymbol: "ETH",
-  //   amount: "0.01",
-  //   note: "testing",
-  //   narrative: "some payment",
-  //   externalId: "1-2-3-4",
-  //   assetAccountId: "aa-iowa-washington-7a99aa2fd5",
-  //   initiator: {
-  //     kind: "Employee",
-  //     orgId: "cu-purple-pip-1b417b958500",
-  //     employeeId: "oe-nine-artist-9de60fef6963",
-  //   },
-  //   status: "Initiated",
-  //   dateCreated: "2022-07-19T19:41:15.656Z",
-  //   orgId: "cu-purple-pip-1b417b958500",
-  //   receiverAddress: "0x8b25C5DDeeB75fD73a62Cd8c1E2Ad4EbCf2BA076",
-  //   id: "pa-edward-emma-9e5130c59f",
-  // };
   const response = await makeHttpRequest<PaymentSuccess>(
     request.method,
     request.path,
     request.payload,
-    authToken
+    authToken,
+    userAction
   );
   return response;
 };

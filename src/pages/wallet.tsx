@@ -127,6 +127,8 @@ export default function Wallet() {
       })
       .catch((error) => {
         console.log(error);
+        toast.error("Couldn't transfer funds");
+        setLoading(false);
       });
   };
 

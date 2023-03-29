@@ -18,7 +18,8 @@ const getTransferHandler = async (
   } else {
     const response = await transfer(
       (req.headers.authorization || "").substring("Bearer ".length),
-      id as string
+      id as string,
+      (req.headers["x-dfns-useraction"] as string) || ""
     );
     res.status(200).json(response);
   }
