@@ -8,7 +8,6 @@ import logo from "../../public/logo.png";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { signedRequest } from "@/utils/signedRequest";
 import { AssetAccount } from "@/utils/types";
-import { UIStore } from "@/utils/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,9 +38,7 @@ export default function Home() {
     )
       .then((assetAccount: AssetAccount) => {
         console.log("Account created: " + JSON.stringify(assetAccount));
-        UIStore.update((s) => {
-          s.wallet = assetAccount;
-        });
+        localStorage.setItem("walletID", assetAccount.id);
         router.push("wallet");
       })
       .catch((error) => {

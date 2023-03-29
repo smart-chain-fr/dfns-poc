@@ -8,7 +8,6 @@ import logo from "../../public/logo.png";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { signedRequest } from "@/utils/signedRequest";
 import { PaymentSuccess } from "@/utils/types";
-import { UIStore } from "@/utils/store";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TextField from "@mui/material/TextField";
@@ -23,8 +22,8 @@ export default function Wallet() {
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState(0);
   const [hasBalance, setHasBalance] = useState(true); // 0 was showing up in the UI - this fixed it
-  const wallet = UIStore.useState((s) => s.wallet);
-  const walletAddress = UIStore.useState((s) => s.address);
+  const [walletID, setWalletID] = useState();
+  const [walletAddress, setWalletAddress] = useState("");
 
   // Set the access key JWT from local storage for use in API calls
   useEffect(() => {
@@ -35,16 +34,18 @@ export default function Wallet() {
         router.push("/login");
       }
     }, 10000);
+    setWalletID(localStorage.getItem("walletID") as any);
+    setWalletAddress(localStorage.getItem("address") as any);
     return () => clearInterval(interval);
   }, [accessKey, router]);
 
   // Get the wallet address and balance
   useEffect(() => {
-    if (!accessKey || accessKey === "-" || !wallet || !wallet?.id) {
+    if (!accessKey || accessKey === "-" || !walletID) {
       return;
     }
     // Get wallet address
-    let endpoint = `/api/accounts/${wallet?.id}`;
+    let endpoint = `/api/accounts/${walletID}`;
     let options = {
       method: "GET",
       headers: {
@@ -55,16 +56,15 @@ export default function Wallet() {
     fetch(endpoint, options)
       .then(async (response) => {
         const address = (await response.json()).address;
-        UIStore.update((s) => {
-          s.address = address;
-        });
+        localStorage.setItem("address", address || "");
+        setWalletAddress(address);
       })
       .catch((error) => {
         toast.error("Couldn't get address: ", error);
       });
 
     // Get wallet balance
-    endpoint = `/api/accounts/${wallet?.id}/balance`;
+    endpoint = `/api/accounts/${walletID}/balance`;
     options = {
       method: "GET",
       headers: {
@@ -80,7 +80,7 @@ export default function Wallet() {
       .catch((error) => {
         toast.error("Couldn't get balance: ", error);
       });
-  }, [accessKey, wallet]);
+  }, [accessKey, walletID]);
 
   // Demonstrate a simple asset transfer with hardcoded values
   const handleTransfer = async () => {
@@ -98,14 +98,14 @@ export default function Wallet() {
 
     signedRequest<PaymentSuccess>(
       "POST",
-      `/api/accounts/${wallet?.id}/transfers`,
+      `/api/accounts/${walletID}/transfers`,
       "POST",
-      `/assets/asset-accounts/${wallet?.id}/payments`,
+      `/assets/asset-accounts/${walletID}/payments`,
       // Hardcoding transfer values for the demo
       JSON.stringify({
         receiver: {
           kind: "BlockchainWalletAddress",
-          address: "TODO: ADD ADDRESS",
+          address: "0xE0765280dB8dbbD55342D337fd26B2e711D253af",
         },
         assetSymbol: "ETH",
         amount: ".001",
