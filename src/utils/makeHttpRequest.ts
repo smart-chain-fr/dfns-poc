@@ -24,7 +24,7 @@ export const makeHttpRequest = async <TResponse>(
     let response = "";
     const req = https.request(
       {
-        hostname: "api.dfns.wtf",
+        hostname: "api.dfns.ninja",
         port: 443,
         path: path,
         method: method,
