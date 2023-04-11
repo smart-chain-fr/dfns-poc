@@ -7,4 +7,4 @@ The question is how can we create a balance between usability and security, enab
 To streamline the user experience, we leverage [WebAuthn](webauthn.guide) to access secrets stored in the secure enclave of the user's device which sign challenges to provide access to our API. This demo application showcases one of the simplest flows possible using this stack. It's built on Next.js in React. Here's a diagram of the architecture:
 
 <br>
-![Demo App Architecture](public/demoapparch.png)
+<img src="public/demoapparch.png" alt="Demo App Architecture"/>
