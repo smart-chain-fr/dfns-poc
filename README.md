@@ -11,12 +11,12 @@ To streamline the user experience, we leverage [WebAuthn](webauthn.guide) to acc
 This demo application showcases one of the simplest flows possible using this stack. It's built on Next.js in React. Here's a diagram of the architecture:
 
 <br>
-<img src="public/demoapparch.png" alt="Demo App Architecture"/>
+<img src="public/demoapp.png" alt="Demo App Architecture"/>
 <br>
 
 The application runs on a dedicated Dfns Demo org in our multi-tenant platform. The organization is configured with an Application that specifies "http://localhost:3000" as the Origin so the app can be run locally. Additionally, an API key was created and the secret key stored in a .env file along with the JWT access token which are used for server side requests.
 
-The user registers for the demo app via the [RegisterForm](https://github.com/dfnsext/authv2-demo-app/blob/m/src/components/RegisterForm/RegisterForm.tsx) component. This calls the [delegatedRegistration](https://github.com/dfnsext/authv2-demo-app/blob/m/src/utils/sendApiRequest.ts#L46) from the server side signing with the API Key secret. The user is then prompted to establish their WebAuthn credentials Which are written to the secure enclave of their device.
+The user registers for the demo app via the [RegisterForm](https://github.com/dfnsext/authv2-demo-app/blob/m/src/components/RegisterForm/RegisterForm.tsx) component. This calls the [delegatedRegistration](https://github.com/dfnsext/authv2-demo-app/blob/m/src/utils/sendApiRequest.ts#L46) from the server side signing with the API Key secret. The user is then prompted to establish their WebAuthn credentials which are written to the secure enclave of their device.
 
 The user logs into the app via the [LoginForm](https://github.com/dfnsext/authv2-demo-app/blob/m/src/components/LoginForm/LoginForm.tsx). This in turn calls [delegatedLogin](https://github.com/dfnsext/authv2-demo-app/blob/m/src/utils/sendApiRequest.ts#L19) to establish the user session. Note Dfns is agnostic to your application's authentication scheme, so we have not implemented any real application auth for the demo.
 
