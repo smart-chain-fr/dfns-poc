@@ -1,5 +1,4 @@
-import { getBearerToken } from "@/utils/getBearerToken";
-import { transfer, listPublicKeys, postRequest } from "@/utils/sendApiRequest";
+import { transfer } from "@/utils/sendApiRequest";
 import { PaymentSuccess } from "@/utils/types";
 import type { NextApiRequest, NextApiResponse } from "next";
 

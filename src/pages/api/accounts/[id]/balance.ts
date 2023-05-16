@@ -1,4 +1,3 @@
-import { getBearerToken } from "@/utils/getBearerToken";
 import { getBalance } from "@/utils/sendApiRequest";
 import { BalanceSuccess } from "@/utils/types";
 import type { NextApiRequest, NextApiResponse } from "next";

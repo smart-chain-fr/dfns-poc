@@ -49,48 +49,6 @@ export const delegatedRegistration = async (
   const payload = {
     email: userName,
     kind: "CustomerEmployee",
-    scopes: [
-      "auth",
-      "AssetAccounts",
-      "Balances",
-      "CallbackEvents",
-      "CallbackSubscriptions",
-      "Payments",
-      "PermissionAssignments",
-      "PermissionsHistorical",
-      "PermissionPredicates",
-      "Permissions",
-      "Policies",
-      "PolicyControlExecutions",
-      "PolicyControls",
-      "PolicyRules",
-      "PublicKeys",
-      "PublicKeysAddresses",
-      "Signatures",
-      "Transactions",
-      "Wallets",
-    ],
-    permissions: [
-      "auth",
-      "AssetAccounts",
-      "Balances",
-      "CallbackEvents",
-      "CallbackSubscriptions",
-      "Payments",
-      "PermissionAssignments",
-      "PermissionsHistorical",
-      "PermissionPredicates",
-      "Permissions",
-      "Policies",
-      "PolicyControlExecutions",
-      "PolicyControls",
-      "PolicyRules",
-      "PublicKeys",
-      "PublicKeysAddresses",
-      "Signatures",
-      "Transactions",
-      "Wallets",
-    ],
     publicKey: "",
   };
 
@@ -271,17 +229,33 @@ export const getUserActionSignature = async (
   );
 };
 
+
+export type UserCredentialInformation = {
+  uuid: string;
+  kind: string;
+  name: string;
+};
+export type UserRegistrationInformation = {
+    id: string;
+    username: string;
+    orgId: string;
+};
+export type UserRegistration = {
+  credential: UserCredentialInformation;
+  user: UserRegistrationInformation;
+};
+
 export const registerUser = async (
   input: CreateUserRegistrationInput,
   registrationToken: string
-): Promise<void> => {
+): Promise<UserRegistration> => {
   const request = {
     method: "POST",
     path: "/auth/registration",
     payload: JSON.stringify(input),
   };
   //console.log("Reg Token:", registrationToken);
-  await makeHttpRequest<{}>(
+  return await makeHttpRequest<UserRegistration>(
     request.method,
     request.path,
     request.payload,

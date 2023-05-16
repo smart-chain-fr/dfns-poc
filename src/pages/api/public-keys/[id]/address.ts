@@ -1,5 +1,4 @@
-import { getBearerToken } from '@/utils/getBearerToken'
-import { getAddress, listPublicKeys, postRequest } from '@/utils/sendApiRequest'
+import { getAddress } from '@/utils/sendApiRequest'
 import {  AddressSuccess } from '@/utils/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
