@@ -2,6 +2,7 @@ import crypto from "crypto";
 import https from "https";
 
 import { appId } from "./constants";
+import { IncomingMessage } from "http";
 
 const generateNonce = (): string => {
   const uuid = crypto.randomUUID();
@@ -20,51 +21,80 @@ export const makeHttpRequest = async <TResponse>(
   authToken: string,
   userActionSignature = ""
 ): Promise<TResponse> => {
+  const host = 'api.dfns.ninja'
+  const options = {
+    hostname: host,
+    port: 443,
+    path: path,
+    method: method,
+    headers: {
+      Accept: 'application/json',
+      'Content-Length': Buffer.byteLength(payload),
+      'Content-Type': 'application/json',
+      Host: host,
+      'User-Agent': 'DFNS Sample App',
+      "X-DFNS-APPID": appId,
+      "X-DFNS-NONCE": generateNonce(),
+      "X-DFNS-USERACTION": userActionSignature,
+      Authorization: authToken ? "Bearer " + authToken : undefined,
+    },
+  };
+
   return new Promise((resolve, reject) => {
-    let response = "";
-    const req = https.request(
-      {
-        hostname: "api.dfns.ninja",
-        port: 443,
-        path: path,
-        method: method,
-        headers: {
-          Accept: "application/json",
-          "X-DFNS-APPID": appId,
-          "X-DFNS-NONCE": generateNonce(),
-          "X-DFNS-USERACTION": userActionSignature,
-          Authorization: authToken ? "Bearer " + authToken : undefined,
-        },
-      },
-      (res) => {
-        res.setEncoding("utf-8");
+    let result = '';
 
-        res.on("data", (chunk) => {
-          response += chunk;
-        });
+    const handleRequest = (response: IncomingMessage) => {
+      const { statusCode } = response;
 
-        if (!res.statusCode || res.statusCode !== 200) {
-          console.log(`${path}\n${authToken}\n${payload}\n${appId}`);
+      response.setEncoding('utf-8');
+      response.on('data', (chunk) => {
+        result += chunk;
+      });
+
+      const isStatus2xx = statusCode && statusCode >= 200 && statusCode < 300;
+
+      response.on('end', () => {
+        if (!isStatus2xx) {
+          console.error(`Request failed with status code: ${response.statusCode}`);
+          console.error(`${path}\n${!!authToken}\n${payload}\n${appId}`);
+          console.error(`${JSON.stringify(response.headers)}`);
+          let errorMessage = response.statusMessage;
+          if (!errorMessage && result) {
+            try {
+              errorMessage = JSON.parse(result).error.message;
+            } catch {
+              errorMessage = 'Unknown error';
+            }
+          }
           reject({
-            statusCode: res.statusCode,
-            message: res.statusMessage,
+            statusCode: response.statusCode,
+            message: errorMessage,
           });
+        } else {
+          try {
+            console.log("src/utils/makeHttpRequest.ts: ", result);
+            if (result === '') {
+              resolve({} as TResponse);
+            } else {
+              resolve(JSON.parse(result) as TResponse);
+            }
+          } catch (error) {
+            reject(error);
+          }
         }
+      });
+    };
 
-        res.on("end", async () => {
-          console.log("src/utils/makeHttpRequest.ts:52 ", response);
-          resolve(JSON.parse(response) as TResponse);
-        });
-      }
-    );
+    const request = https.request(options, handleRequest);
 
-    req.on("error", (e) => {
+    request.on('error', (e) => {
       reject(e);
     });
 
-    if (payload) {
-      req.write(payload);
+    if (payload !== '') {
+      request.write(payload);
     }
-    req.end();
+
+    request.end();
   });
 };

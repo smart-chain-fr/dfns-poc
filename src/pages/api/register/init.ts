@@ -1,6 +1,9 @@
 import { delegatedRegistration } from '@/utils/sendApiRequest'
-import { AuthenticatorAttestationOptions, AuthenticatorRequirementOptions, CreateUserRegistrationChallengeResponse, CredentialKind } from '@/utils/types'
+import { CreateUserRegistrationChallengeResponse } from '@/utils/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import dotEnv from 'dotEnv'
+
+dotEnv.config()
 
 type ErrorMessage = {
   error: string

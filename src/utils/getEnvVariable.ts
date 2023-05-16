@@ -1,7 +1,13 @@
+import dotEnv from 'dotEnv'
+
 export const getEnvVariable = (name: string) : string => {
-  const value = process.env[name]
+  let value = process.env[name]
   if (!value) {
-    throw new Error(`Environment varibale (${name}) not set.`)
+    dotEnv.config()
+    value = process.env[name]
+    if (!value) {
+      throw new Error(`Environment varibale (${name}) not set.`)
+    }
   }
   return value.replace(/\\n/g, '\n')
 }
