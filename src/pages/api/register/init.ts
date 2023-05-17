@@ -1,9 +1,9 @@
 import { delegatedRegistration } from '@/utils/sendApiRequest'
 import { CreateUserRegistrationChallengeResponse } from '@/utils/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import dotEnv from 'dotEnv'
+import dotenv from 'dotenv'
 
-dotEnv.config()
+dotenv.config()
 
 type ErrorMessage = {
   error: string
