@@ -23,3 +23,9 @@ The user logs into the app via the [LoginForm](https://github.com/dfnsext/authv2
 After logging in, the user should have an access_key written to local storage in JWT format. All application level functionality which triggers a POST requests uses this access key as a bearer token and signs the request with the WebAuthn secret. For example, when the user [creates a wallet](https://github.com/dfnsext/authv2-demo-app/blob/m/src/pages/index.tsx#L30), the [signedRequest](https://github.com/dfnsext/authv2-demo-app/blob/m/src/utils/signedRequest.ts#L9) method makes the necessary calls to obtain a challenge, sign it, and pass the resulting [x-dfns-useraction](https://github.com/dfnsext/authv2-demo-app/blob/m/src/utils/signedRequest.ts#L68) header to the Dfns API. A similar flow is triggered for the transfer.
 
 We welcome your feedback and questions on the demo app. Don't hesitate to reach out to us at docs@dfns.co. Thanks!
+
+--------
+
+## Setup pour utiliser le PoC
+
+Une documentation accessible [ici](https://docs.google.com/document/d/1gzajYsVKPoZ9-h_DWa3Aco7jOnRu_13KR4nzPdhjppg/edit?usp=sharing), résume les étapes de configuration.
