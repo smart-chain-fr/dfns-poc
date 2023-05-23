@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import logo from "../../public/logo.png";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { signedRequest } from "@/utils/signedRequest";
-import { AssetAccount } from "@/utils/types";
+import { PublicKey, AssetAccount } from "@/utils/types";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -46,6 +46,25 @@ export default function Home() {
       });
   };
 
+  const handleCreatePublicKey = async () => {
+    setLoading(true);
+    signedRequest<PublicKey>(
+      "POST",
+      "/api/public-keys",
+      "POST",
+      "/public-keys",
+      JSON.stringify({ isEddsa: false })
+    )
+      .then((publicKey: PublicKey) => {
+        console.log("PublicKey created: " + JSON.stringify(publicKey));
+        localStorage.setItem("publicKeyID", publicKey.id);
+        router.push("publicKey");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <>
       <Head>
@@ -56,13 +75,20 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <Image src={logo} alt="logo" width={411} height={200} />
-        Your user has logged in and is ready to create a wallet...
+        Your user has logged in and is ready to create a wallet or public-key account...
         <LoadingButton
           variant="contained"
           loading={loading}
           onClick={handleCreateWallet}
         >
           Create Wallet
+        </LoadingButton>
+        <LoadingButton
+          variant="contained"
+          loading={loading}
+          onClick={handleCreatePublicKey}
+        >
+          Create Public-key Account
         </LoadingButton>
       </main>
     </>

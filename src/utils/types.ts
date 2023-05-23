@@ -1,3 +1,5 @@
+import { type } from "os";
+
 export enum CredentialKind {
   Fido2 = "Fido2",
   Key = "Key",
@@ -309,9 +311,7 @@ export type WebAuthnGetCredentialChallenge = {
   requestOptions: CredentialRequestOptions;
 };
 
-export type WebAuthnChallenge =
-  | WebAuthnGetCredentialChallenge
-  | WebAuthnCreateCredentialChallenge;
+export type WebAuthnChallenge = WebAuthnGetCredentialChallenge | WebAuthnCreateCredentialChallenge;
 
 export type CreateUserCredentialOptions = {
   supportedCredentialKinds: {
@@ -343,4 +343,46 @@ export type CreateAssetAccountInput = {
 
 export type CreatePublicKeyInput = {
   isEddsa?: boolean;
+};
+
+export type SignatureSuccess = {
+  id: string;
+  orgId: string;
+  publicKeyId?: string;
+  hash: string;
+  status: string;
+  r?: string;
+  v?: string;
+  s?: string;
+  recid?: string;
+  initiator: {
+    kind: string;
+    orgId: string;
+    employeeId: string;
+  };
+  dateCreated: string;
+};
+
+export type TransactionSuccess = {
+  id: string;
+  orgId: string;
+  network: string;
+  status: string;
+  dateCreated: string;
+  publicKeyId?: string;
+  initiator: {
+    kind: string;
+    orgId: string;
+    employeeId: string;
+  };
+  dateUpdated: string;
+  snapshot: string;
+  transaction: {
+    publicKeyId: string;
+    network: string;
+    templateKind: string;
+    data: string;
+    to: string;
+    gasLimit: string;
+  };
 };

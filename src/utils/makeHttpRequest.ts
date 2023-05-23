@@ -40,6 +40,8 @@ export const makeHttpRequest = async <TResponse>(
     },
   };
 
+  console.log("options: ", options)
+  console.log("payload", payload)
   return new Promise((resolve, reject) => {
     let result = '';
 

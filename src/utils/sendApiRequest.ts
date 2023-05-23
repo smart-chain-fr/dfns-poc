@@ -14,6 +14,8 @@ import {
   ListAssetAccountsSuccess,
   ListPublicKeysSuccess,
   PaymentSuccess,
+  SignatureSuccess,
+  TransactionSuccess,
 } from "./types";
 
 export const delegatedLogin = async (userName: string): Promise<string> => {
@@ -116,9 +118,10 @@ export const getAddress = async (
 ): Promise<AddressSuccess> => {
   const request = {
     method: "GET",
-    path: `/public-keys/${id}/address?network=ETH`,
+    path: `/public-keys/${id}/address?network=MATIC`,
     payload: "",
   };
+  console.log("request", request);
   const response = await makeHttpRequest<AddressSuccess>(
     request.method,
     request.path,
@@ -172,17 +175,69 @@ export const transfer = async (
   const request = {
     method: "POST",
     path: `/assets/asset-accounts/${id}/payments`,
-    // Hardcoding transfer values for the demo
+    /// @dev Hardcoding transfer values for the demo.
     payload: JSON.stringify({
       receiver: {
         kind: "BlockchainWalletAddress",
-        address: "0x81B8d1fa6a835809401213732D911C6A785a65Ed",
+        address: "0x89baD010e72c3ebE24E1E0bdA55aef93d587b1f1",
       },
       assetSymbol: "MATIC",
-      amount: ".00025",
+      amount: "0.000025",
+      note: "Dfns Demo App Transfer"
     }),
   };
   const response = await makeHttpRequest<PaymentSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken,
+    userAction
+  );
+  return response;
+};
+
+export const getSignature = async (
+  authToken: string,
+  id: string,
+  userAction: string
+): Promise<SignatureSuccess> => {
+  const request = {
+    method: "POST",
+    path: `/public-keys/${id}/signatures`,
+    /// @dev Hardcoding signature values for the demo.
+    payload: JSON.stringify({
+      hash: "0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658"
+    }),
+  };
+  const response = await makeHttpRequest<SignatureSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken,
+    userAction
+  );
+  return response;
+};
+
+export const broadcastTransaction = async (
+  authToken: string,
+  id: string,
+  userAction: string
+): Promise<TransactionSuccess> => {
+  const request = {
+    method: "POST",
+    path: `/public-keys/transactions`,
+    /// @dev Hardcoding signature values for the demo.
+    payload: JSON.stringify({
+      publicKeyId: id,
+      network: "MATIC",
+      templateKind: "EvmGenericTx",
+      /// @dev `abi.encodeWithSignature("faucet(address,uint256)",0xA2543B6ebC3D03Cf120F88e70E7bac0F1b2f8391,1);`
+      data: "0x7b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000",
+      to: "0x4F19b4b46f4B5AC5195fA08364b95102e88256C7"
+    }),
+  };
+  const response = await makeHttpRequest<TransactionSuccess>(
     request.method,
     request.path,
     request.payload,
