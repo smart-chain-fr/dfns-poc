@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { apiKeyToken } from "./constants";
 import { makeHttpRequest } from "./makeHttpRequest";
 import { signRequestWithApiKey } from "./signRequestWithApiKey";
@@ -13,10 +14,14 @@ import {
   CreateUserRegistrationInput,
   ListAssetAccountsSuccess,
   ListPublicKeysSuccess,
+  ListWalletSignatureSuccess,
+  ListWalletsSuccess,
   PaymentSuccess,
   SignatureSuccess,
   TransactionSuccess,
+  WalletSignatureSuccess,
 } from "./types";
+import { Wallet } from "./types";
 
 export const delegatedLogin = async (userName: string): Promise<string> => {
   const payload = {
@@ -50,7 +55,7 @@ export const delegatedRegistration = async (
 ): Promise<CreateUserRegistrationChallengeResponse> => {
   const payload = {
     email: userName,
-    kind: "CustomerEmployee",
+    kind: "EndUser",
     publicKey: "",
   };
 
@@ -112,6 +117,26 @@ export const listPublicKeys = async (
   return response;
 };
 
+export const listWallets = async (
+  authToken: string
+): Promise<ListWalletsSuccess> => {
+  const request = {
+    method: "GET",
+    path: "/public-keys",
+    payload: "",
+  };
+  const response = await makeHttpRequest<ListWalletsSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  );
+  return response;
+};
+
+
+
+
 export const getAddress = async (
   authToken: string,
   id: string
@@ -131,6 +156,25 @@ export const getAddress = async (
   return response;
 };
 
+export const getWalletAddress = async (
+  authToken: string,
+  id: string
+): Promise<string> => {
+  const request = {
+    method: "GET",
+    path: `/wallets/${id}`,
+    payload: "",
+  };
+  console.log("request", request);
+  const response = await makeHttpRequest<Wallet>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  );
+  return response.address;
+};
+
 export const getAssetAccount = async (
   authToken: string,
   id: string
@@ -141,6 +185,64 @@ export const getAssetAccount = async (
     payload: "",
   };
   const response = await makeHttpRequest<AssetAccount>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  );
+  return response;
+};
+
+export const listWalletSignature = async (
+  authToken: string,
+  id: string
+): Promise<ListWalletSignatureSuccess> => {
+  const request = {
+    method: "GET",
+    path: `/wallets/${id}/signatures`,
+    payload: "",
+  };
+  const response = await makeHttpRequest<ListWalletSignatureSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  );
+  return response;
+};
+
+export const getWalletSignature = async (
+  authToken: string,
+  id: string,
+  signatureId: string
+): Promise<WalletSignatureSuccess> => {
+  const request = {
+    method: "GET",
+    path: `/wallets/${id}/signatures/${signatureId}`,
+    payload: "",
+  };
+  const response = await makeHttpRequest<WalletSignatureSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken
+  );
+  return response;
+};
+
+
+
+
+export const getWallet = async (
+  authToken: string,
+  id: string
+): Promise<Wallet> => {
+  const request = {
+    method: "GET",
+    path: `/wallets/${id}`,
+    payload: "",
+  };
+  const response = await makeHttpRequest<Wallet>(
     request.method,
     request.path,
     request.payload,
@@ -206,7 +308,7 @@ export const getSignature = async (
     path: `/public-keys/${id}/signatures`,
     /// @dev Hardcoding signature values for the demo.
     payload: JSON.stringify({
-      hash: "0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658"
+      hash: ethers.utils.keccak256("0xf889018502540be400830186a0944f19b4b46f4b5ac5195fa08364b95102e88256c780b8607b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000830138818080"),
     }),
   };
   const response = await makeHttpRequest<SignatureSuccess>(
@@ -218,6 +320,63 @@ export const getSignature = async (
   );
   return response;
 };
+
+export const createWalletSignature = async (
+  authToken: string,
+  id: string,
+  userAction: string
+): Promise<WalletSignatureSuccess> => {
+  const request = {
+    method: "POST",
+    path: `/wallets/${id}/signatures`,
+    /// @dev Hardcoding signature values for the demo.
+    payload: JSON.stringify({
+      kind: "Hash",
+      hash: "44abd4cd90c77e9b6ca6f102b5335eb746b39e2522b59500268f57111baccb9a"
+    }),
+  };
+
+  const response = await makeHttpRequest<WalletSignatureSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    authToken,
+    userAction
+  );
+  return response;
+};
+
+export const createWalletSignatureAdmin = async (
+  id: string,
+): Promise<WalletSignatureSuccess> => {
+
+
+  const request = {
+    method: "POST",
+    path: `/wallets/${id}/signatures`,
+    /// @dev Hardcoding signature values for the demo.
+    payload: JSON.stringify({
+      kind: "Hash",
+      hash: "44abd4cd90c77e9b6ca6f102b5335eb746b39e2522b59500268f57111baccb9a"
+    }),
+  };
+
+  const userActionSignature = await signRequestWithApiKey(
+    request.method,
+    request.path,
+    request.payload
+  );
+
+  const response = await makeHttpRequest<WalletSignatureSuccess>(
+    request.method,
+    request.path,
+    request.payload,
+    apiKeyToken,
+    userActionSignature
+  );
+  return response;
+};
+
 
 export const broadcastTransaction = async (
   authToken: string,

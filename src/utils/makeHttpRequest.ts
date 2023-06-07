@@ -57,9 +57,11 @@ export const makeHttpRequest = async <TResponse>(
 
       response.on('end', () => {
         if (!isStatus2xx) {
+          
           console.error(`Request failed with status code: ${response.statusCode}`);
           console.error(`${path}\n${!!authToken}\n${payload}\n${appId}`);
           console.error(`${JSON.stringify(response.headers)}`);
+          console.error(`${result}`)
           let errorMessage = response.statusMessage;
           if (!errorMessage && result) {
             try {

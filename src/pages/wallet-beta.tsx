@@ -2,7 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import logo from "../../public/logo.png";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -17,13 +17,13 @@ import { ethers } from "ethers";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Wallet() {
+export default function WalletBeta() {
   const router = useRouter();
   const [accessKey, setAccessKey] = useState("-");
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState(0);
   const [hasBalance, setHasBalance] = useState(true); // 0 was showing up in the UI - this fixed it
-  const [publicKeyID, setPublicKeyID] = useState("");
+  const [walletId, setWalletId] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
 
   // Show or hide Transfer button
@@ -44,10 +44,10 @@ export default function Wallet() {
       }
     }, 10000);
 
-    // const pid = localStorage.getItem("publicKeyID") || "";
-    const pid = "pk-ack-alani-iuu3ijsvi92gat24";
+    // const pid = localStorage.getItem("walletId") || "";
+    const pid = "wa-50n2g-r09qs-9pto5jrsbkttjjnn";
     const addr = localStorage.getItem("address") || "";
-    setPublicKeyID(pid as any);
+    setWalletId(pid as any);
     setWalletAddress(addr as any);
     // Poll for balance.  Once server side, we would use a callback
     const interval = setInterval(async () => {
@@ -55,34 +55,49 @@ export default function Wallet() {
         return;
       }
       // // Get wallet balance
-      const endpoint = `/api/address/${addr}/balance`;
-      const options = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-      fetch(endpoint, options)
-        .then(async response => {
-          const maxUnitBalance = ethers.utils.formatEther(await response.json());
-          setBalance(parseFloat(maxUnitBalance));
-        })
-        .catch(error => {
-          toast.error("Couldn't get balance: ", error);
-        });
+    const provider = new ethers.providers.JsonRpcProvider(
+        "https://quick-aged-glade.matic-testnet.quiknode.pro/ae21f553cba2d4b2560acd824a029a5f4f721397/",
+        
+      );
+      await provider.getBalance(addr).then((balance) => {
+        const maxUnitBalance = ethers.utils.formatEther(balance);
+        setBalance(parseFloat(maxUnitBalance));
+      })
     }, 5000);
 
     return () => clearInterval(interval);
   }, [accessKey, router]);
+ 
+
+  const updateBalance = useCallback( async () => {
+
+    if(!walletAddress) {
+        setBalance(0);
+        return
+    }
+    const provider = new ethers.providers.JsonRpcProvider(
+        "https://quick-aged-glade.matic-testnet.quiknode.pro/ae21f553cba2d4b2560acd824a029a5f4f721397/",
+        
+      );
+      await provider.getBalance(walletAddress).then((balance) => {
+        const maxUnitBalance = ethers.utils.formatEther(balance);
+        setBalance(parseFloat(maxUnitBalance));
+      })
+    
+  }, [walletAddress])
+
+  useEffect(() => {
+    updateBalance();
+  }, [updateBalance])
 
   // Get the wallet address
   useEffect(() => {
-    if (!accessKey || accessKey === "-" || publicKeyID === "") {
+    if (!accessKey || accessKey === "-" || walletId === "") {
       return;
     }
-    console.log("publicKeyID: ", publicKeyID);
+    console.log("walletId: ", walletId);
     // Get wallet address
-    let endpoint = `/api/public-keys/${publicKeyID}/address`;
+    let endpoint = `/api/wallets/${walletId}`;
     let options = {
       method: "GET",
       headers: {
@@ -99,7 +114,7 @@ export default function Wallet() {
       .catch(error => {
         toast.error("Couldn't get address: ", error);
       });
-  }, [accessKey, publicKeyID, walletAddress]);
+  }, [accessKey, walletId, walletAddress]);
 
   const handleSigning = async () => {
     setLoading(true);
@@ -120,28 +135,31 @@ export default function Wallet() {
     );
 
     const hashedTx = ethers.utils.serializeTransaction({
-      // to: "0x406028cbD1C011023DF515563A19841caC70eD8B",
-      // value: ethers.utils.parseEther("0.0001"),
-      data: "0x7b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000",
-      to: "0x4F19b4b46f4B5AC5195fA08364b95102e88256C7",
-      nonce: await provider.getTransactionCount("0x3F4279aF7Fe0a5F2145cd6A0969Ce1ed24509118", "latest"),
+      to: "0x406028cbD1C011023DF515563A19841caC70eD8B",
+      value: ethers.utils.parseEther("0.0001"),
+      // data: "0x7b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000",
+      // to: "0x4F19b4b46f4B5AC5195fA08364b95102e88256C7",
+      nonce: await provider.getTransactionCount("0xe0ed39a9b289e24b4220fe6772ad4d5ad4885b4b", "latest"),
       gasLimit: ethers.utils.hexlify(100000), // standard gas limit for simple transaction
       gasPrice: ethers.utils.hexlify(10000000000), // 1 Gwei
       chainId: 80001,
     });
 
     console.log(hashedTx)
+    console.log(ethers.utils.keccak256(hashedTx))
 
     signedRequest<SignatureSuccess>(
       "POST",
-      `/api/public-keys/${publicKeyID}/signature`,
+      `/api/wallets/${walletId}/signatures`,
       "POST",
-      `/public-keys/${publicKeyID}/signatures`,
+      `/wallets/${walletId}/signatures`,
       // Hardcoding values for the demo
       /// `keccak256("test")`
       /// @notice exactly 32 bytes are required for the hash.
+      // ethers.utils.keccak256("0xf889018502540be400830186a0944f19b4b46f4b5ac5195fa08364b95102e88256c780b8607b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000830138818080"),
       JSON.stringify({
-        hash: ethers.utils.keccak256("0xf889018502540be400830186a0944f19b4b46f4b5ac5195fa08364b95102e88256c780b8607b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000830138818080"),
+        kind: "Hash",
+        hash: "44abd4cd90c77e9b6ca6f102b5335eb746b39e2522b59500268f57111baccb9a",
       }),
     )
       .then((signature: SignatureSuccess) => {
@@ -177,15 +195,16 @@ export default function Wallet() {
       progress: undefined,
       theme: "light",
     });
+    
 
     signedRequest<TransactionSuccess>(
       "POST",
-      `/api/public-keys/transactions`,
+      `/api/wallets/transactions`,
       "POST",
-      `/public-keys/transactions`,
+      `/wallets/transactions`,
       // Hardcoding values for the demo
       JSON.stringify({
-        publicKeyId: publicKeyID,
+        walletId: walletId,
         network: "MATIC",
         templateKind: "EvmGenericTx",
         /// @dev `abi.encodeWithSignature("faucet(address,uint256)",0xA2543B6ebC3D03Cf120F88e70E7bac0F1b2f8391,1);`
@@ -214,6 +233,40 @@ export default function Wallet() {
       });
   };
 
+  const handleGetSignatures = async () => {
+    setLoading(true);
+    toast.info("Getting signature...", {
+      position: "bottom-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+
+    // Get wallet address
+    let endpoint = `/api/wallets/${walletId}/signatures`;
+    let options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessKey}`,
+      },
+    };
+    fetch(endpoint, options)
+      .then(async response => {
+        console.log("response: ", response);
+        setLoading(false);
+      })
+      .catch(error => {
+        setLoading(false);
+        toast.error("Couldn't get address: ", error);
+      });
+    
+    }
+
   const handleTransfer = async () => {
     setLoading(true);
     toast.info("Creating transfer...", {
@@ -231,42 +284,30 @@ export default function Wallet() {
       "https://quick-aged-glade.matic-testnet.quiknode.pro/ae21f553cba2d4b2560acd824a029a5f4f721397/"
     );
 
-    // const joinedSignature = ethers.utils.joinSignature({
-    //   r: "0x1182b1902f760a622a09b411096bb0068968777f62125d33d9e7434c96e29282",
-    //   s: "0x6ad91584717c06819b25773534d8746b357ff91538d45569edde98ea1170c67e",
-    //   v: 27 ,
-    // });
 
+    
 
     const serializedTx = ethers.utils.serializeTransaction({
-      data: "0x7b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000",
-      to: "0x4F19b4b46f4B5AC5195fA08364b95102e88256C7",
-      // to: "0x406028cbD1C011023DF515563A19841caC70eD8B",
-      // value: ethers.utils.parseEther("0.0001"),
-      nonce: await provider.getTransactionCount("0x3F4279aF7Fe0a5F2145cd6A0969Ce1ed24509118", "latest"),
+      to: "0x406028cbD1C011023DF515563A19841caC70eD8B",
+      value: ethers.utils.parseEther("0.0001"),
+      // data: "0x7b56c2b2000000000000000000000000a2543b6ebc3d03cf120f88e70e7bac0f1b2f8391000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000",
+      // to: "0x4F19b4b46f4B5AC5195fA08364b95102e88256C7",
+      nonce: await provider.getTransactionCount("0xe0ed39a9b289e24b4220fe6772ad4d5ad4885b4b", "latest"),
       gasLimit: ethers.utils.hexlify(100000), // standard gas limit for simple transaction
       gasPrice: ethers.utils.hexlify(10000000000), // 1 Gwei
       chainId: 80001,
     }, {
-      r: "0x7c8d1ae4780a2f83d35af713e883ccdc63220f2cd67c56212e50d32f034eae32",
-      s: "0x4233e85c73e4c3ced93637dc20d5aaa58e78111626bbad4c3f0d9544e5221bf0",
-      v: 28 ,
+      r: "0x7a375a6cf3a637026ee57b600060071ea2f04aa570577dc85d2fe51fdd4e36dd",
+      s: "0x1a2d27cc3137262ae29e1748a4ad5280be7f3f581d63d2963e6ff515e2db6be4",
+      v: 0 ,
     });
-    console.log(ethers.utils.parseTransaction(serializedTx))
 
     
 
-    // console.log(joinedSignature);
 
-    const tx = await provider.sendTransaction(serializedTx);
+    let tx : ethers.providers.TransactionReceipt | ethers.providers.TransactionResponse = await provider.sendTransaction(serializedTx);
 
-    // try{
-      
-    // }catch(error) => {
-    //   console.log(error);
-    //   toast.error("Couldn't mint NFT, try again later.");
-    //   setLoading(false);
-    // });
+    tx = await tx.wait();
 
     
 
@@ -303,7 +344,7 @@ export default function Wallet() {
 
   // Copy the wallet address when the icon is clicked
   const handleCopyPk = () => {
-    navigator.clipboard.writeText(publicKeyID);
+    navigator.clipboard.writeText(walletId);
     toast.success("Copied!", {
       position: "bottom-center",
       autoClose: 1000,
@@ -341,7 +382,7 @@ export default function Wallet() {
         <div className="vflex">
           <p>Here&lsquo;s your public-key id:</p>
           <div className="hflex">
-            <TextField disabled sx={{ width: "40ch" }} label={publicKeyID} variant="outlined" />
+            <TextField disabled sx={{ width: "40ch" }} label={walletId} variant="outlined" />
             <IconButton onClick={handleCopyPk}>
               <ContentCopyIcon />
             </IconButton>
@@ -355,6 +396,12 @@ export default function Wallet() {
           </div>
           <h2> Balance: {balance} MATIC</h2>
         </div>
+
+        {
+          <LoadingButton variant="contained" loading={loading} onClick={handleGetSignatures}>
+            GET SIGNATURES
+          </LoadingButton>
+        }
         {
           <LoadingButton variant="contained" loading={loading} onClick={handleSigning}>
             SIGN MESSAGE

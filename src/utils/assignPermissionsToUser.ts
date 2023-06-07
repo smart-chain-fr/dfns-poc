@@ -39,6 +39,10 @@ const createPermission = async (name: string) : Promise<Permission> => {
       "AssetAccounts:Archive",
       "AssetAccounts:Create",
       "AssetAccounts:Read",
+      "Wallets:Create",
+      "Wallets:Read",
+      "Wallets:GenerateSignature",
+      "Wallets:ReadSignature",
       "Auth:Action:Sign",
       "Balances:Read",
       "Payments:Create",
@@ -74,7 +78,7 @@ const createPermission = async (name: string) : Promise<Permission> => {
 }
 
 export const assignPermissionsToUser = async (userId: string) : Promise<boolean> => {
-  const name = 'DfnsDemoAppUserPermissions'
+  const name = 'DfnsDemoAppUserPermissionsWithWalletsAndSignatures3'
   console.log('Get permissions list')
   const permissions = await getRequest<{}, PermissionList>(
     '/permissions',
@@ -92,7 +96,7 @@ export const assignPermissionsToUser = async (userId: string) : Promise<boolean>
   const payload: CreatePermissionAssignmentInput = {
     permissionId: permission.id,
     identityId: userId,
-    identityKind: 'CustomerEmployee',
+    identityKind: 'EndUser',
   }
 
   const request = {

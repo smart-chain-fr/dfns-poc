@@ -252,12 +252,30 @@ export type PublicKey = {
   publicKey: string;
 };
 
+export type Wallet = {
+  id: string;
+  orgId: string;
+  status: string;
+  assetSymbol: string;
+  name: string;
+  dateCreated: string;
+  dateUpdate: string;
+  address: string;
+};
+
 export type ListAssetAccountsSuccess = {
   items: AssetAccount[];
 };
 
 export type ListPublicKeysSuccess = {
   items: PublicKey[];
+};
+
+export type ListWalletsSuccess = {
+  items: Wallet[];
+};
+export type ListWalletSignatureSuccess = {
+  items: WalletSignatureSuccess[];
 };
 
 export type AddressSuccess = {
@@ -341,6 +359,10 @@ export type CreateAssetAccountInput = {
   name?: string;
 };
 
+export type CreateWalletInput = {
+  network: string;
+};
+
 export type CreatePublicKeyInput = {
   isEddsa?: boolean;
 };
@@ -361,6 +383,73 @@ export type SignatureSuccess = {
     employeeId: string;
   };
   dateCreated: string;
+};
+
+export type WalletSignatureSuccess = {
+  id: string;
+  walletId: string;
+  network: string;
+  requester: {
+    kind: string;
+    userId: string;
+    tokenId: string;
+    appId: string;
+  };
+  requestBody: {
+    kind: string;
+    types: {
+      Person: [
+        {
+          name: string;
+          type: string;
+        },
+        {
+          name: string;
+          type: string;
+        },
+      ];
+      Mail: [
+        {
+          name: string;
+          type: string;
+        },
+        {
+          name: string;
+          type: string;
+        },
+        {
+          name: string;
+          type: string;
+        },
+      ];
+    };
+    domain: {
+      name: string;
+      version: string;
+      chainId: number;
+      verifyingContract: string;
+      salt: string;
+    };
+    message: {
+      from: {
+        name: string;
+        wallet: string;
+      };
+      to: {
+        name: string;
+        wallet: string;
+      };
+      contents: string;
+    };
+  };
+  status: string;
+  signature: {
+    r: string;
+    s: string;
+    recid: number;
+  };
+  dateRequested: string;
+  dateSigned: string;
 };
 
 export type TransactionSuccess = {

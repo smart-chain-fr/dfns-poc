@@ -27,6 +27,21 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [accessKey, router]);
 
+  const handleCreateWalletBeta = async () => {
+    setLoading(true);
+    signedRequest<any>("POST", "/api/wallets", "POST", "/wallets", JSON.stringify({ network: "MATIC_MUMBAI" }))
+      .then((wallet: any) => {
+        // console.log(wallet)
+        // console.log("Account created: " + JSON.stringify(assetAccount));
+        // localStorage.setItem("walletBetaID", assetAccount.id);
+        // router.push("wallet-beta");
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   const handleCreateWallet = async () => {
     setLoading(true);
     signedRequest<AssetAccount>(
@@ -34,33 +49,27 @@ export default function Home() {
       "/api/accounts",
       "POST",
       "/assets/asset-accounts",
-      JSON.stringify({ assetSymbol: "MATIC" })
+      JSON.stringify({ assetSymbol: "MATIC" }),
     )
       .then((assetAccount: AssetAccount) => {
         console.log("Account created: " + JSON.stringify(assetAccount));
         localStorage.setItem("walletID", assetAccount.id);
         router.push("wallet");
       })
-      .catch((error) => {
+      .catch(error => {
         console.log(error);
       });
   };
 
   const handleCreatePublicKey = async () => {
     setLoading(true);
-    signedRequest<PublicKey>(
-      "POST",
-      "/api/public-keys",
-      "POST",
-      "/public-keys",
-      JSON.stringify({ isEddsa: false })
-    )
+    signedRequest<PublicKey>("POST", "/api/public-keys", "POST", "/public-keys", JSON.stringify({ isEddsa: false }))
       .then((publicKey: PublicKey) => {
         console.log("PublicKey created: " + JSON.stringify(publicKey));
         localStorage.setItem("publicKeyID", publicKey.id);
         router.push("publicKey");
       })
-      .catch((error) => {
+      .catch(error => {
         console.log(error);
       });
   };
@@ -76,18 +85,13 @@ export default function Home() {
       <main className={styles.main}>
         <Image src={logo} alt="logo" width={411} height={200} />
         Your user has logged in and is ready to create a wallet or public-key account...
-        <LoadingButton
-          variant="contained"
-          loading={loading}
-          onClick={handleCreateWallet}
-        >
+        <LoadingButton variant="contained" loading={loading} onClick={handleCreateWallet}>
           Create Wallet
         </LoadingButton>
-        <LoadingButton
-          variant="contained"
-          loading={loading}
-          onClick={handleCreatePublicKey}
-        >
+        <LoadingButton variant="contained" loading={loading} onClick={handleCreateWalletBeta}>
+          Create Wallet Beta
+        </LoadingButton>
+        <LoadingButton variant="contained" loading={loading} onClick={handleCreatePublicKey}>
           Create Public-key Account
         </LoadingButton>
       </main>
